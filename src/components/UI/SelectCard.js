@@ -23,7 +23,7 @@ const SelectCard = ({ products }) => {
           </div>
           <div>
             <p className="uppercase">{category}</p>
-            <p> &#2547; {price}</p>
+            <p> ₹ {price}</p>
             <p>{status}</p>
             <p>Rating: {rating}</p>
           </div>

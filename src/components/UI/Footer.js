@@ -1,63 +1,92 @@
 import React from "react";
+import Link from "next/link";
+import { RiFacebookBoxFill, RiTwitterFill, RiInstagramFill, RiYoutubeFill } from "react-icons/ri";
 
 const Footer = () => {
   return (
-    <div>
-      <footer className="footer p-10 bg-base-300 text-base-content">
-        <div>
-          <span className="footer-title">Services</span>
-          <a className="link link-hover">Branding</a>
-          <a className="link link-hover">Design</a>
-          <a className="link link-hover">Marketing</a>
-          <a className="link link-hover">Advertisement</a>
+    <footer className="bg-[#0a0a0a] border-t border-gray-800 text-gray-300 font-sans pt-16 pb-8">
+      <div className="container mx-auto px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+          
+          {/* Brand & About */}
+          <div>
+            <Link href="/" className="flex items-center gap-2 text-2xl font-bold tracking-tight text-white hover:opacity-80 transition-opacity mb-6">
+              <span className="text-yellow-500">⚡</span>
+              <span>The Computer Corner</span>
+            </Link>
+            <p className="text-sm text-gray-400 leading-relaxed mb-6">
+              Your premium destination for custom PC builds, high-performance components, and professional workstations. Built for gamers, creators, and professionals.
+            </p>
+            <div className="flex gap-4">
+              <a href="#" className="text-gray-400 hover:text-yellow-500 transition-colors">
+                <RiFacebookBoxFill className="text-2xl" />
+              </a>
+              <a href="#" className="text-gray-400 hover:text-yellow-500 transition-colors">
+                <RiTwitterFill className="text-2xl" />
+              </a>
+              <a href="#" className="text-gray-400 hover:text-yellow-500 transition-colors">
+                <RiInstagramFill className="text-2xl" />
+              </a>
+              <a href="#" className="text-gray-400 hover:text-yellow-500 transition-colors">
+                <RiYoutubeFill className="text-2xl" />
+              </a>
+            </div>
+          </div>
+
+          {/* Quick Links */}
+          <div>
+            <h3 className="text-white font-semibold text-lg mb-6">Quick Links</h3>
+            <ul className="space-y-4 text-sm">
+              <li><Link href="/pcbuilder" className="hover:text-yellow-500 transition-colors">Custom PC Builder</Link></li>
+              <li><Link href="/category/processor" className="hover:text-yellow-500 transition-colors">Processors</Link></li>
+              <li><Link href="/category/monitor" className="hover:text-yellow-500 transition-colors">Graphics Cards</Link></li>
+              <li><Link href="/category/motherboard" className="hover:text-yellow-500 transition-colors">Motherboards</Link></li>
+              <li><Link href="/category/ram" className="hover:text-yellow-500 transition-colors">Memory (RAM)</Link></li>
+            </ul>
+          </div>
+
+          {/* Support */}
+          <div>
+            <h3 className="text-white font-semibold text-lg mb-6">Support</h3>
+            <ul className="space-y-4 text-sm">
+              <li><a href="#" className="hover:text-yellow-500 transition-colors">Track Your Order</a></li>
+              <li><a href="#" className="hover:text-yellow-500 transition-colors">Warranty Policy</a></li>
+              <li><a href="#" className="hover:text-yellow-500 transition-colors">Shipping & Returns</a></li>
+              <li><a href="#" className="hover:text-yellow-500 transition-colors">FAQs</a></li>
+              <li><a href="#" className="hover:text-yellow-500 transition-colors">Contact Us</a></li>
+            </ul>
+          </div>
+
+          {/* Contact Info */}
+          <div>
+            <h3 className="text-white font-semibold text-lg mb-6">Contact Us</h3>
+            <ul className="space-y-4 text-sm text-gray-400">
+              <li>
+                <strong className="block text-white mb-1">Phone:</strong>
+                <a href="tel:09563600008" className="hover:text-yellow-500 transition-colors">095636 00008</a>
+              </li>
+              <li>
+                <strong className="block text-white mb-1">Email:</strong>
+                <a href="mailto:support@thecomputercorner.com" className="hover:text-yellow-500 transition-colors">support@thecomputercorner.com</a>
+              </li>
+              <li>
+                <strong className="block text-white mb-1">Address:</strong>
+                520, Amrik Singh Rd, <br/>Bathinda, Punjab 151001
+              </li>
+            </ul>
+          </div>
+
         </div>
-        <div>
-          <span className="footer-title">Company</span>
-          <a className="link link-hover">About us</a>
-          <a className="link link-hover">Contact</a>
-          <a className="link link-hover">Jobs</a>
-          <a className="link link-hover">Press kit</a>
-        </div>
-        <div>
-          <span className="footer-title">Social</span>
-          <div className="grid grid-flow-col gap-4">
-            <a>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                className="fill-current"
-              >
-                <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"></path>
-              </svg>
-            </a>
-            <a>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                className="fill-current"
-              >
-                <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"></path>
-              </svg>
-            </a>
-            <a>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                className="fill-current"
-              >
-                <path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"></path>
-              </svg>
-            </a>
+
+        <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500">
+          <p>&copy; {new Date().getFullYear()} The Computer Corner. All rights reserved.</p>
+          <div className="flex gap-4 mt-4 md:mt-0">
+            <a href="#" className="hover:text-gray-300">Privacy Policy</a>
+            <a href="#" className="hover:text-gray-300">Terms of Service</a>
           </div>
         </div>
-      </footer>
-    </div>
+      </div>
+    </footer>
   );
 };
 

@@ -1,8 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  output: 'standalone',
   images: {
-    domains: ["i.ibb.co"],
+    domains: ["i.ibb.co", "images.unsplash.com", "encrypted-tbn3.gstatic.com", "www.gigabyte.com", "static.gigabyte.com"],
   },
 };
 
