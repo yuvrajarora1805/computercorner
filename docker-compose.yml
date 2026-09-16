@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "3014:3000"
     environment:
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
       - MYSQL_HOST=db
@@ -28,7 +28,7 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-pc_build_db}
     ports:
-      - "3306:3306"
+      - "3310:3306"
     volumes:
       - db_data:/var/lib/mysql
     healthcheck:
