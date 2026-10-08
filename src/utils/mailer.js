@@ -317,7 +317,7 @@ export async function sendPasswordChangeSuccessEmail({ to, name }) {
   await transporter.sendMail({
     from: `"The Computer Corner" <${process.env.EMAIL_FROM}>`,
     to,
-    subject: \`Your Password Was Changed — The Computer Corner\`,
+    subject: `Your Password Was Changed — The Computer Corner`,
     html,
   });
 }
