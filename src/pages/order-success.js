@@ -48,7 +48,7 @@ export default function OrderSuccess() {
           <Link href="/" className="bg-yellow-500 text-black hover:bg-yellow-400 font-bold py-3 px-8 rounded transition-colors tracking-wide">
             Return to Store
           </Link>
-          <Link href="/profile" className="bg-transparent border border-gray-700 text-white hover:bg-white/5 font-bold py-3 px-8 rounded transition-colors tracking-wide">
+          <Link href="/orders" className="bg-transparent border border-gray-700 text-white hover:bg-white/5 font-bold py-3 px-8 rounded transition-colors tracking-wide">
             View My Orders
           </Link>
         </div>

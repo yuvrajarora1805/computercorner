@@ -15,9 +15,10 @@ const Card = ({ product }) => {
       images = Array.isArray(parsed) ? parsed : [product.img];
     }
   } catch (e) {
-    images = [product.img];
+    if (product.img) images = [product.img];
   }
-  const mainImage = images.length > 0 ? images[0] : '';
+  images = images.filter(Boolean);
+  const mainImage = images.length > 0 ? images[0] : null;
 
   const { items: favoriteItems } = useAppSelector((state) => state.favorites);
   const isFavorite = favoriteItems?.some((item) => item._id === product._id);
@@ -65,16 +66,32 @@ const Card = ({ product }) => {
       <Link href={`/product/${product?._id}`}>
         <div className="p-4 bg-[#111111]">
           <div className="relative h-48 w-full bg-[#f8f9fa] rounded-lg flex items-center justify-center p-4 overflow-hidden cursor-pointer border border-gray-800 shadow-inner">
-            <img
-              src={mainImage}
-              alt={product.name}
-              className="w-auto h-full object-contain group-hover:scale-105 transition-transform duration-500 mix-blend-multiply"
-            />
+            {mainImage ? (
+              <img
+                src={mainImage}
+                alt={product.name}
+                className="w-auto h-full object-contain group-hover:scale-105 transition-transform duration-500 mix-blend-multiply"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "/img/cpu.png";
+                  e.target.className = "w-auto h-full object-contain opacity-40 grayscale mix-blend-multiply";
+                }}
+              />
+            ) : (
+              <img
+                src="/img/cpu.png"
+                alt="Placeholder"
+                className="w-auto h-full object-contain opacity-40 grayscale mix-blend-multiply"
+              />
+            )}
             
             {/* Category Badge */}
             <div className="absolute top-2 left-2 bg-black/80 backdrop-blur-md border border-gray-700 text-gray-300 text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded">
               {product.category}
             </div>
+          </div>
+          <div className="text-[9px] text-gray-500 text-center mt-2 font-medium italic">
+            *Image is for reference purpose. Actual product may vary.
           </div>
         </div>
       </Link>

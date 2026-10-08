@@ -93,14 +93,36 @@ export default function AdminDashboard() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-800">
-                    {filteredProducts.map((product) => (
+                    {filteredProducts.map((product) => {
+                      let images = [];
+                      try {
+                        if (product.img) {
+                          const parsed = JSON.parse(product.img);
+                          images = Array.isArray(parsed) ? parsed : [product.img];
+                        }
+                      } catch (e) {
+                        if (product.img) images = [product.img];
+                      }
+                      images = images.filter(Boolean);
+                      const mainImage = images.length > 0 ? images[0] : null;
+
+                      return (
                       <tr key={product._id} className="hover:bg-[#1a1a1a] transition-colors">
                         <td className="px-6 py-4">
                           <div className="w-12 h-12 bg-black rounded flex items-center justify-center overflow-hidden border border-gray-700">
-                            {product.img ? (
-                              <img src={product.img} alt={product.name} className="w-full h-full object-cover" />
+                            {mainImage ? (
+                              <img 
+                                src={mainImage} 
+                                alt={product.name} 
+                                className="w-full h-full object-cover" 
+                                onError={(e) => {
+                                  e.target.onerror = null;
+                                  e.target.src = "/img/cpu.png";
+                                  e.target.className = "w-full h-full object-cover opacity-50 grayscale mix-blend-screen";
+                                }}
+                              />
                             ) : (
-                              <span className="text-xs text-gray-600">No Img</span>
+                              <span className="text-xs text-gray-600 font-bold">No Img</span>
                             )}
                           </div>
                         </td>
@@ -117,7 +139,8 @@ export default function AdminDashboard() {
                           <button onClick={() => handleDelete(product._id)} className="text-red-500 hover:text-red-400 transition-colors">Delete</button>
                         </td>
                       </tr>
-                    ))}
+                      );
+                    })}
                     {filteredProducts.length === 0 && (
                       <tr>
                         <td colSpan="6" className="px-6 py-12 text-center text-gray-500">

@@ -17,12 +17,22 @@ export default function EditPrebuiltPC() {
     gpu: '',
     ram: '',
     storage: '',
-    image: ''
+    image: '',
+    additional_items: '[]'
   });
+  const [products, setProducts] = useState([]);
+  const [selectedProductToAdd, setSelectedProductToAdd] = useState('');
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(!isNew);
 
   useEffect(() => {
+    // Fetch products catalog
+    fetch('/api/products')
+      .then(res => res.json())
+      .then(data => {
+        if (data.data) setProducts(data.data);
+      });
+
     if (isNew) {
       setInitialLoading(false);
       return;
@@ -209,22 +219,48 @@ export default function EditPrebuiltPC() {
                   className="w-full text-white focus:outline-none transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-yellow-500 file:text-black hover:file:bg-yellow-400 cursor-pointer"
                 />
                 
-                {displayImages.length > 0 && (
-                  <div className="flex flex-wrap gap-4 mt-2">
-                    {displayImages.map((img, idx) => (
-                      <div key={idx} className="relative group w-24 h-24 rounded-lg overflow-hidden border border-gray-600">
-                        <img src={img} alt={`Preview ${idx}`} className="w-full h-full object-cover" />
-                        <button
-                          type="button"
-                          onClick={() => removeImage(idx)}
-                          className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-lg"
-                        >
-                          &times;
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <div className="flex flex-wrap gap-4 mt-2">
+                  {/* Uploaded Custom Images */}
+                  {displayImages.map((img, idx) => (
+                    <div key={`custom-${idx}`} className="relative group w-24 h-24 rounded-lg overflow-hidden border border-gray-600">
+                      <img src={img} alt={`Preview ${idx}`} className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(idx)}
+                        className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all shadow-lg"
+                      >
+                        &times;
+                      </button>
+                    </div>
+                  ))}
+
+                  {/* Component Images Preview */}
+                  {(() => {
+                    let additional = [];
+                    try { if (formData.additional_items) additional = JSON.parse(formData.additional_items); } catch(e){}
+                    const selectedNames = [formData.cpu, formData.gpu, formData.ram, formData.storage, ...additional.map(a => a.name)].filter(Boolean);
+                    const selectedProducts = products.filter(p => selectedNames.includes(p.name));
+                    
+                    return selectedProducts.map((p, idx) => {
+                      let pImg = '';
+                      try {
+                        const parsed = JSON.parse(p.img);
+                        pImg = Array.isArray(parsed) ? parsed[0] : p.img;
+                      } catch(e) { pImg = p.img; }
+                      
+                      if (!pImg) return null;
+                      
+                      return (
+                        <div key={`comp-${idx}`} className="relative w-24 h-24 rounded-lg overflow-hidden border border-gray-700 bg-black p-1" title={p.name}>
+                          <img src={pImg} alt={p.name} className="w-full h-full object-contain" />
+                          <div className="absolute bottom-0 inset-x-0 bg-black/70 text-[8px] text-white text-center truncate px-1">
+                            {p.name}
+                          </div>
+                        </div>
+                      );
+                    });
+                  })()}
+                </div>
               </div>
             </div>
           </div>
@@ -246,48 +282,102 @@ export default function EditPrebuiltPC() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-semibold text-gray-300 mb-2">CPU</label>
-                <input
-                  type="text"
-                  name="cpu"
-                  value={formData.cpu}
-                  onChange={handleChange}
-                  className="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-yellow-500 transition-colors"
-                  placeholder="e.g. Intel Core i9-13900K"
-                />
+                <select name="cpu" value={formData.cpu} onChange={handleChange} className="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-yellow-500">
+                  <option value="">-- Select CPU --</option>
+                  {products.filter(p => p.category?.toLowerCase() === 'processor' || p.category?.toLowerCase() === 'cpu').map(p => (
+                    <option key={p._id} value={p.name}>{p.name}</option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-300 mb-2">GPU</label>
-                <input
-                  type="text"
-                  name="gpu"
-                  value={formData.gpu}
-                  onChange={handleChange}
-                  className="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-yellow-500 transition-colors"
-                  placeholder="e.g. RTX 4090 24GB"
-                />
+                <select name="gpu" value={formData.gpu} onChange={handleChange} className="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-yellow-500">
+                  <option value="">-- Select GPU --</option>
+                  {products.filter(p => p.category?.toLowerCase() === 'gpu' || p.category?.toLowerCase() === 'graphics card' || p.category?.toLowerCase().includes('graphics')).map(p => (
+                    <option key={p._id} value={p.name}>{p.name}</option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-300 mb-2">RAM</label>
-                <input
-                  type="text"
-                  name="ram"
-                  value={formData.ram}
-                  onChange={handleChange}
-                  className="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-yellow-500 transition-colors"
-                  placeholder="e.g. 64GB DDR5 6000MHz"
-                />
+                <select name="ram" value={formData.ram} onChange={handleChange} className="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-yellow-500">
+                  <option value="">-- Select RAM --</option>
+                  {products.filter(p => p.category?.toLowerCase() === 'ram').map(p => (
+                    <option key={p._id} value={p.name}>{p.name}</option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-300 mb-2">Storage</label>
-                <input
-                  type="text"
-                  name="storage"
-                  value={formData.storage}
-                  onChange={handleChange}
-                  className="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-yellow-500 transition-colors"
-                  placeholder="e.g. 2TB NVMe Gen4 SSD"
-                />
+                <select name="storage" value={formData.storage} onChange={handleChange} className="w-full bg-[#1a1a1a] border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-yellow-500">
+                  <option value="">-- Select Storage --</option>
+                  {products.filter(p => p.category?.toLowerCase().includes('storage') || p.category?.toLowerCase() === 'ssd' || p.category?.toLowerCase() === 'hdd').map(p => (
+                    <option key={p._id} value={p.name}>{p.name}</option>
+                  ))}
+                </select>
               </div>
+            </div>
+
+            <div className="mt-8 border-t border-gray-800 pt-6">
+              <h4 className="text-lg font-bold mb-4">Additional Components</h4>
+              
+              <div className="flex gap-4 mb-4">
+                <select 
+                  value={selectedProductToAdd} 
+                  onChange={(e) => setSelectedProductToAdd(e.target.value)}
+                  className="flex-1 bg-[#1a1a1a] border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-yellow-500"
+                >
+                  <option value="">-- Select Product from Catalog --</option>
+                  {products.map(p => (
+                    <option key={p._id} value={p._id}>{p.name} (₹{p.price})</option>
+                  ))}
+                </select>
+                <button 
+                  type="button"
+                  onClick={() => {
+                    if (!selectedProductToAdd) return;
+                    const p = products.find(x => String(x._id) === String(selectedProductToAdd));
+                    if (p) {
+                      let current = [];
+                      try { if (formData.additional_items) current = JSON.parse(formData.additional_items); } catch(e){}
+                      current.push({ id: p._id, name: p.name, category: p.category, price: p.price });
+                      setFormData(prev => ({ ...prev, additional_items: JSON.stringify(current) }));
+                      setSelectedProductToAdd('');
+                    }
+                  }}
+                  className="bg-gray-800 hover:bg-gray-700 text-white px-6 py-2 rounded font-bold"
+                >
+                  Add
+                </button>
+              </div>
+
+              {(() => {
+                let additional = [];
+                try { if (formData.additional_items) additional = JSON.parse(formData.additional_items); } catch(e){}
+                if (additional.length === 0) return <p className="text-gray-500 text-sm">No additional components added.</p>;
+                return (
+                  <ul className="space-y-2">
+                    {additional.map((item, index) => (
+                      <li key={index} className="flex justify-between items-center bg-[#1a1a1a] p-3 rounded border border-gray-700">
+                        <div>
+                          <span className="font-bold">{item.name}</span>
+                          <span className="text-gray-500 text-xs ml-2 uppercase">{item.category}</span>
+                        </div>
+                        <button 
+                          type="button" 
+                          onClick={() => {
+                            const newAdd = additional.filter((_, i) => i !== index);
+                            setFormData(prev => ({ ...prev, additional_items: JSON.stringify(newAdd) }));
+                          }}
+                          className="text-red-500 hover:text-red-400 font-bold"
+                        >
+                          Remove
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                );
+              })()}
             </div>
           </div>
 

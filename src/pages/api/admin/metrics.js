@@ -1,8 +1,15 @@
 import pool from '@/utils/db';
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/pages/api/auth/[...nextauth]";
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const session = await getServerSession(req, res, authOptions);
+  if (!session || session.user.role !== 'admin') {
+    return res.status(401).json({ error: "Unauthorized access" });
   }
 
   try {

@@ -3,11 +3,49 @@ import { toast } from 'react-hot-toast';
 
 export default function Orders() {
   const [orders, setOrders] = useState([]);
+  const [filteredOrders, setFilteredOrders] = useState([]);
+  const [statusFilter, setStatusFilter] = useState('All');
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [orderDetails, setOrderDetails] = useState(null);
   const [fetchingDetails, setFetchingDetails] = useState(false);
+  const [emailForm, setEmailForm] = useState({ subject: '', message: '' });
+  const [sendingEmail, setSendingEmail] = useState(false);
+  const [showEmailForm, setShowEmailForm] = useState(false);
+
+  const handleSendEmail = async (e) => {
+    e.preventDefault();
+    if (!emailForm.subject || !emailForm.message) {
+      toast.error('Please enter a subject and message');
+      return;
+    }
+    setSendingEmail(true);
+    try {
+      const res = await fetch('/api/admin/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: orderDetails.order.user_email,
+          subject: emailForm.subject,
+          message: emailForm.message,
+          orderId: orderDetails.order.id,
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        toast.success('Email sent successfully!');
+        setEmailForm({ subject: '', message: '' });
+        setShowEmailForm(false);
+      } else {
+        toast.error(data.error || 'Failed to send email');
+      }
+    } catch (error) {
+      toast.error('An error occurred while sending email');
+    } finally {
+      setSendingEmail(false);
+    }
+  };
 
   const fetchOrderDetails = async (id) => {
     setFetchingDetails(true);
@@ -35,6 +73,7 @@ export default function Orders() {
       if (res.ok) {
         const data = await res.json();
         setOrders(data);
+        setFilteredOrders(data);
       } else {
         toast.error('Failed to load orders');
       }
@@ -48,6 +87,14 @@ export default function Orders() {
   useEffect(() => {
     fetchOrders();
   }, []);
+
+  useEffect(() => {
+    if (statusFilter === 'All') {
+      setFilteredOrders(orders);
+    } else {
+      setFilteredOrders(orders.filter(o => (o.order_status || 'Received') === statusFilter));
+    }
+  }, [statusFilter, orders]);
 
   const handleStatusChange = async (orderId, newStatus) => {
     setUpdatingId(orderId);
@@ -79,6 +126,20 @@ export default function Orders() {
           <h1 className="text-3xl font-bold tracking-tight">Orders</h1>
           <p className="text-gray-400 mt-2">View and manage customer orders</p>
         </div>
+        <div>
+          <select 
+            value={statusFilter} 
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="bg-[#1a1a1a] border border-gray-700 rounded-lg px-4 py-2 text-sm font-bold text-white focus:outline-none focus:border-yellow-500 transition-colors"
+          >
+            <option value="All">All Orders</option>
+            <option value="Received">Received</option>
+            <option value="Processing">Processing</option>
+            <option value="Shipped">Shipped</option>
+            <option value="Delivered">Delivered</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
+        </div>
       </div>
 
       <div className="bg-[#111] rounded-xl border border-gray-800 overflow-hidden">
@@ -101,14 +162,14 @@ export default function Orders() {
                     </div>
                   </td>
                 </tr>
-              ) : orders.length === 0 ? (
+              ) : filteredOrders.length === 0 ? (
                 <tr>
                   <td colSpan="4" className="px-6 py-12 text-center text-gray-500">
-                    No orders found. Orders will appear here once customers complete checkout.
+                    No orders found matching your filter.
                   </td>
                 </tr>
               ) : (
-                orders.map((order) => (
+                filteredOrders.map((order) => (
                   <tr key={order.id} className="hover:bg-[#1a1a1a] transition-colors">
                     <td className="px-6 py-4">
                       <p className="font-mono text-xs text-gray-400 truncate max-w-[150px]" title={order.id}>{order.id}</p>
@@ -175,7 +236,7 @@ export default function Orders() {
                 )}
               </div>
               <button 
-                onClick={() => { setIsModalOpen(false); setOrderDetails(null); }} 
+                onClick={() => { setIsModalOpen(false); setOrderDetails(null); setShowEmailForm(false); setEmailForm({subject: '', message: ''}); }} 
                 className="text-gray-500 hover:text-white transition-colors"
               >
                 ✕
@@ -252,6 +313,55 @@ export default function Orders() {
                         <p className="text-gray-500 italic">No items found for this order.</p>
                       )}
                     </div>
+                  </div>
+
+                  {/* Custom Email Section */}
+                  <div className="border-t border-gray-800 pt-6">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-lg font-bold text-white">Send Customer Email</h3>
+                      <button 
+                        onClick={() => setShowEmailForm(!showEmailForm)}
+                        className="bg-[#1a1a1a] border border-gray-700 hover:border-gray-500 text-xs font-bold uppercase tracking-wider px-3 py-1.5 rounded transition-colors text-white"
+                      >
+                        {showEmailForm ? 'Cancel' : 'Write Email'}
+                      </button>
+                    </div>
+
+                    {showEmailForm && (
+                      <form onSubmit={handleSendEmail} className="bg-[#1a1a1a] p-4 rounded-lg border border-gray-800 mb-6">
+                        <div className="mb-4">
+                          <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Subject</label>
+                          <input 
+                            type="text" 
+                            required
+                            value={emailForm.subject}
+                            onChange={(e) => setEmailForm({...emailForm, subject: e.target.value})}
+                            className="w-full bg-[#111] border border-gray-700 rounded p-2 text-white focus:outline-none focus:border-[#00ff80]"
+                            placeholder="e.g. Update regarding your order"
+                          />
+                        </div>
+                        <div className="mb-4">
+                          <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Message</label>
+                          <textarea 
+                            required
+                            rows="4"
+                            value={emailForm.message}
+                            onChange={(e) => setEmailForm({...emailForm, message: e.target.value})}
+                            className="w-full bg-[#111] border border-gray-700 rounded p-2 text-white focus:outline-none focus:border-[#00ff80] resize-none"
+                            placeholder="Write your custom message here..."
+                          ></textarea>
+                        </div>
+                        <div className="flex justify-end">
+                          <button 
+                            type="submit"
+                            disabled={sendingEmail}
+                            className="bg-[#00ff80] hover:bg-[#00cc66] text-black font-bold uppercase tracking-wider text-xs px-4 py-2 rounded transition-colors disabled:opacity-50"
+                          >
+                            {sendingEmail ? 'Sending...' : 'Send Email'}
+                          </button>
+                        </div>
+                      </form>
+                    )}
                   </div>
 
                   {/* Order Summary Section */}

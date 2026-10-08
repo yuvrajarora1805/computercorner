@@ -7,8 +7,9 @@ import crypto from "crypto";
 
 function verifyPassword(password, storedHash) {
   const [salt, hash] = storedHash.split(':');
-  const verifyHash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
-  return hash === verifyHash;
+  const verifyHashNew = crypto.pbkdf2Sync(password, salt, 100000, 64, 'sha512').toString('hex');
+  const verifyHashOld = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
+  return hash === verifyHashNew || hash === verifyHashOld;
 }
 
 const providers = [];
@@ -34,12 +35,12 @@ providers.push(
       password: { label: "Password", type: "password", placeholder: "password" }
     },
     async authorize(credentials, req) {
-      const adminUser = process.env.ADMIN_USER || 'admin';
-      const adminPass = process.env.ADMIN_PASS || 'password';
+      const adminUser = process.env.ADMIN_USER;
+      const adminPass = process.env.ADMIN_PASS;
 
-      // 1. Check for Admin Login
-      if (credentials.username === adminUser && credentials.password === adminPass) {
-        return { id: "1", name: "Admin", email: "admin@example.com", role: "admin" };
+      // 1. Check for Admin Login (only if explicit env vars are set)
+      if (adminUser && adminPass && credentials.username === adminUser && credentials.password === adminPass) {
+        return { id: "1", name: "Admin", email: adminUser, role: "admin" };
       }
 
       // 2. Database User Login
@@ -84,6 +85,19 @@ export const authOptions = {
     signIn: "/login",
   },
   callbacks: {
+    async signIn({ user, account, profile }) {
+      if (account.provider === 'google') {
+        try {
+          await pool.query(
+            'INSERT IGNORE INTO users (username, email, password_hash, role) VALUES (?, ?, ?, ?)',
+            [user.name, user.email, 'GOOGLE_AUTH', 'user']
+          );
+        } catch (e) {
+          console.error("Failed to auto-create google user", e);
+        }
+      }
+      return true;
+    },
     async jwt({ token, user }) {
       if (user) {
         token.role = user.role || "user";

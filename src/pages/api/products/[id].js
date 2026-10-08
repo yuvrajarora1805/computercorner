@@ -1,4 +1,6 @@
 import pool from '@/utils/db';
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/pages/api/auth/[...nextauth]";
 
 export default async function handler(req, res) {
   const { id } = req.query;
@@ -16,6 +18,10 @@ export default async function handler(req, res) {
       res.status(500).json({ message: "error", error: error.message });
     }
   } else if (req.method === "PUT") {
+    const session = await getServerSession(req, res, authOptions);
+    if (!session || session.user.role !== 'admin') {
+      return res.status(401).json({ error: "Unauthorized access" });
+    }
     try {
       const { name, category, price, img, status, rating, description, keyFeature, individualRating } = req.body;
       const query = `
@@ -37,6 +43,10 @@ export default async function handler(req, res) {
       res.status(500).json({ message: "error", error: error.message });
     }
   } else if (req.method === "DELETE") {
+    const session = await getServerSession(req, res, authOptions);
+    if (!session || session.user.role !== 'admin') {
+      return res.status(401).json({ error: "Unauthorized access" });
+    }
     try {
       const [result] = await pool.query('DELETE FROM products WHERE _id = ?', [id]);
       

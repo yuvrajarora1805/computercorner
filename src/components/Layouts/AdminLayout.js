@@ -23,8 +23,11 @@ const AdminLayout = ({ children }) => {
   React.useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/admin/login');
+    } else if (status === 'authenticated' && session?.user?.role !== 'admin') {
+      // If a regular customer tries to access admin routes, kick them out
+      router.push('/');
     }
-  }, [status, router]);
+  }, [status, session, router]);
 
   if (status === 'loading') {
     return <div className="min-h-screen bg-[#050505] flex items-center justify-center text-white">Loading...</div>;

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { RiArrowDropDownLine, RiSearchLine, RiUserLine, RiHeartLine, RiShoppingCartLine } from "react-icons/ri";
 import { useAppSelector } from "@/redux/hooks";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 
 const Navbar = () => {
@@ -10,6 +10,41 @@ const Navbar = () => {
   const { items } = useAppSelector((state) => state.product);
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
+  const [allProducts, setAllProducts] = useState([]);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const searchRef = useRef(null);
+  const [bannerText, setBannerText] = useState("PC prices will rise in JULY 2026 due to AI component scarcity. Order your PC now");
+
+  useEffect(() => {
+    fetch('/api/settings')
+      .then(res => res.json())
+      .then(data => {
+        if (data.announcementBanner !== undefined) {
+          setBannerText(data.announcementBanner);
+        }
+      })
+      .catch(console.error);
+      
+    // Fetch products for live search
+    fetch('/api/products')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.data) {
+          setAllProducts(data.data);
+        }
+      })
+      .catch(console.error);
+      
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const searchResults = allProducts.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase())).slice(0, 5);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -21,9 +56,11 @@ const Navbar = () => {
   return (
     <div className="sticky top-0 z-50 bg-[#0f0f0f] border-b border-gray-800 text-white shadow-xl font-sans">
       {/* Top Announcement Bar */}
-      <div className="bg-yellow-500 text-black text-center py-1 text-xs md:text-sm font-semibold tracking-wide">
-        PC prices will rise in JULY 2026 due to AI component scarcity. Order your PC now
-      </div>
+      {bannerText && bannerText.trim() !== '' && (
+        <div className="bg-yellow-500 text-black text-center py-1 text-xs md:text-sm font-semibold tracking-wide">
+          {bannerText}
+        </div>
+      )}
 
       <div className="container mx-auto px-4 md:px-8">
         <div className="navbar h-20 min-h-[5rem] px-0">
@@ -68,17 +105,52 @@ const Navbar = () => {
           </div>
 
           <div className="navbar-center hidden lg:flex flex-1 justify-center gap-6">
-            <form onSubmit={handleSearch} className="relative w-full max-w-md group">
+            <form ref={searchRef} onSubmit={handleSearch} className="relative w-full max-w-md group">
               <input 
                 type="text" 
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setIsDropdownOpen(true);
+                }}
+                onFocus={() => setIsDropdownOpen(true)}
                 placeholder="Search for products.." 
                 className="w-full bg-[#1a1a1a] border border-gray-700 rounded-full py-2 px-5 text-sm text-white focus:outline-none focus:border-yellow-500 transition-colors"
               />
               <button type="submit" className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-yellow-500 transition-colors cursor-pointer">
                 <RiSearchLine />
               </button>
+              
+              {/* Dropdown Results */}
+              {isDropdownOpen && searchQuery.trim() !== "" && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-[#1a1a1a] border border-gray-800 rounded-xl shadow-2xl overflow-hidden z-50">
+                  {searchResults.length > 0 ? (
+                    searchResults.map(product => (
+                      <div 
+                        key={product._id} 
+                        onClick={() => {
+                          router.push(`/product/${product._id}`);
+                          setIsDropdownOpen(false);
+                          setSearchQuery("");
+                        }}
+                        className="flex items-center gap-3 p-3 hover:bg-gray-800 cursor-pointer border-b border-gray-800 last:border-b-0 transition-colors"
+                      >
+                        <div className="w-10 h-10 bg-black rounded shrink-0 overflow-hidden">
+                          {product.img && <img src={product.img} alt={product.name} className="w-full h-full object-cover" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-white truncate">{product.name}</p>
+                          <p className="text-xs text-yellow-500 font-bold">₹{product.price}</p>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="p-4 text-center text-sm text-gray-400">
+                      No products found
+                    </div>
+                  )}
+                </div>
+              )}
             </form>
 
             <div className="dropdown dropdown-hover">
@@ -128,6 +200,10 @@ const Navbar = () => {
                   <div className="px-4 py-2 border-b border-gray-800 mb-2">
                     <p className="text-sm font-semibold truncate text-white">{session.user.name}</p>
                   </div>
+                  {session?.user?.role === 'admin' && (
+                    <li><Link href="/admin" className="hover:bg-gray-800 text-[#00ff80] font-bold">Admin Dashboard</Link></li>
+                  )}
+                  <li><Link href="/orders" className="hover:bg-gray-800 hover:text-white">My Orders</Link></li>
                   <li><Link href="/profile" className="hover:bg-gray-800 hover:text-white">Profile</Link></li>
                   <li><button onClick={() => signOut()} className="hover:bg-red-500/20 hover:text-red-400 text-red-500 mt-1">Logout</button></li>
                 </ul>

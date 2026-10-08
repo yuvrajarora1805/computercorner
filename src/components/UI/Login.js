@@ -1,9 +1,11 @@
 import { FcGoogle } from "react-icons/fc";
 import { BsGithub } from "react-icons/bs";
+import { BiShow, BiHide } from "react-icons/bi";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
+import Link from "next/link";
 
 const LoginPage = () => {
   const router = useRouter();
@@ -13,7 +15,9 @@ const LoginPage = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [consent, setConsent] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -97,26 +101,60 @@ const LoginPage = () => {
           <input
             required
             type="text"
-            placeholder="Email (or 'admin' for Admin login)"
+            placeholder="Email Address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="w-full bg-[#1a1a1a] border border-gray-700 rounded-xl p-3 text-white focus:outline-none focus:border-yellow-500 transition-colors"
           />
         </div>
-        <div>
+        <div className="relative">
           <input
             required
-            type="password"
+            type={showPassword ? "text" : "password"}
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full bg-[#1a1a1a] border border-gray-700 rounded-xl p-3 text-white focus:outline-none focus:border-yellow-500 transition-colors"
+            className="w-full bg-[#1a1a1a] border border-gray-700 rounded-xl p-3 pr-10 text-white focus:outline-none focus:border-yellow-500 transition-colors"
           />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-yellow-500"
+          >
+            {showPassword ? <BiHide size={20} /> : <BiShow size={20} />}
+          </button>
         </div>
+        {isLogin && (
+          <div className="flex justify-end w-full mt-1">
+            <button
+              type="button"
+              onClick={() => router.push('/forgot-password')}
+              className="text-xs text-gray-400 hover:text-yellow-500 transition-colors"
+            >
+              Forgot Password?
+            </button>
+          </div>
+        )}
+
+        {!isLogin && (
+          <div className="flex items-start gap-3 mt-4 text-left">
+            <input
+              type="checkbox"
+              required
+              checked={consent}
+              onChange={(e) => setConsent(e.target.checked)}
+              className="mt-1 w-4 h-4 rounded border-gray-700 text-yellow-500 focus:ring-yellow-500 bg-[#1a1a1a] cursor-pointer"
+            />
+            <span className="text-xs text-gray-400 leading-relaxed">
+              I agree to the <Link href="/terms" target="_blank" className="text-yellow-500 hover:underline">Terms & Conditions</Link> and <Link href="/privacy-policy" target="_blank" className="text-yellow-500 hover:underline">Privacy Policy</Link>, and I explicitly consent to the processing of my personal data as per the DPDP Act 2023.
+            </span>
+          </div>
+        )}
+
         <button
           type="submit"
-          disabled={loading}
-          className="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-3 rounded-xl transition-colors disabled:opacity-50"
+          disabled={loading || (!isLogin && !consent)}
+          className="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-3 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-4"
         >
           {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Sign Up')}
         </button>
@@ -149,7 +187,7 @@ const LoginPage = () => {
       </div>
       
       <div className="mt-8 z-10 text-xs text-gray-600 text-center">
-        By continuing, you agree to our Terms of Service and Privacy Policy.
+        By continuing with Google, you agree to our <Link href="/terms" className="hover:text-yellow-500 transition-colors">Terms of Service</Link> and <Link href="/privacy-policy" className="hover:text-yellow-500 transition-colors">Privacy Policy</Link>.
       </div>
     </div>
   );

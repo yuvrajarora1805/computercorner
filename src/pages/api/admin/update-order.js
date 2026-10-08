@@ -1,6 +1,7 @@
 import pool from '@/utils/db';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]";
+import { sendOrderStatusEmail } from '@/utils/mailer';
 
 export default async function handler(req, res) {
   if (req.method !== 'PUT') {
@@ -20,6 +21,9 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
+    // Fetch order before updating for the email
+    const [orders] = await pool.query('SELECT user_email FROM orders WHERE id = ?', [id]);
+
     const [result] = await pool.query(
       'UPDATE orders SET order_status = ? WHERE id = ?',
       [order_status, id]
@@ -27,6 +31,17 @@ export default async function handler(req, res) {
 
     if (result.affectedRows === 0) {
       return res.status(404).json({ error: 'Order not found' });
+    }
+
+    // Send status update email (non-blocking)
+    if (orders.length > 0) {
+      const { user_email } = orders[0];
+      sendOrderStatusEmail({
+        to: user_email,
+        name: user_email.split('@')[0],
+        orderId: id,
+        newStatus: order_status,
+      }).catch(err => console.error('Status email send failed:', err));
     }
 
     res.status(200).json({ success: true, message: 'Order status updated' });

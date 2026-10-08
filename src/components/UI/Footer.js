@@ -65,10 +65,7 @@ const Footer = () => {
                 <strong className="block text-white mb-1">Phone:</strong>
                 <a href="tel:09563600008" className="hover:text-yellow-500 transition-colors">095636 00008</a>
               </li>
-              <li>
-                <strong className="block text-white mb-1">Email:</strong>
-                <a href="mailto:support@thecomputercorner.com" className="hover:text-yellow-500 transition-colors">support@thecomputercorner.com</a>
-              </li>
+
               <li>
                 <strong className="block text-white mb-1">Address:</strong>
                 520, Amrik Singh Rd, <br/>Bathinda, Punjab 151001
@@ -81,8 +78,8 @@ const Footer = () => {
         <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500">
           <p>&copy; {new Date().getFullYear()} The Computer Corner. All rights reserved.</p>
           <div className="flex gap-4 mt-4 md:mt-0">
-            <a href="#" className="hover:text-gray-300">Privacy Policy</a>
-            <a href="#" className="hover:text-gray-300">Terms of Service</a>
+            <Link href="/privacy-policy" className="hover:text-gray-300">Privacy Policy</Link>
+            <Link href="/terms" className="hover:text-gray-300">Terms of Service</Link>
           </div>
         </div>
       </div>

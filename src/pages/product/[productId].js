@@ -42,10 +42,12 @@ const ProductDetailPage = ({ product }) => {
       images = Array.isArray(parsed) ? parsed : [img];
     }
   } catch (e) {
-    images = [img];
+    if (img) images = [img];
   }
 
-  const [mainImage, setMainImage] = useState(images.length > 0 ? images[0] : '/placeholder.png');
+  images = images.filter(Boolean);
+
+  const [mainImage, setMainImage] = useState(images.length > 0 ? images[0] : null);
 
   return (
     <div className="container mx-auto font-sans text-gray-200 py-12 px-4">
@@ -54,11 +56,24 @@ const ProductDetailPage = ({ product }) => {
         {/* Left Side: Images */}
         <div className="space-y-4">
           <div className="bg-[#1a1a1a] p-8 rounded-xl border border-gray-800 flex items-center justify-center min-h-[400px]">
-            <img
-              className="w-full h-auto object-contain max-h-[400px] transition-all duration-300 hover:scale-105"
-              src={mainImage}
-              alt={name}
-            />
+            {mainImage ? (
+              <img
+                className="w-full h-auto object-contain max-h-[400px] transition-all duration-300 hover:scale-105"
+                src={mainImage}
+                alt={name}
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "/img/cpu.png";
+                  e.target.classList.add("opacity-50", "grayscale", "mix-blend-screen");
+                }}
+              />
+            ) : (
+              <img
+                className="w-full h-auto object-contain max-h-[400px] transition-all duration-300 hover:scale-105 opacity-50 grayscale mix-blend-screen"
+                src="/img/cpu.png"
+                alt="Placeholder"
+              />
+            )}
           </div>
           
           {images.length > 1 && (
@@ -74,6 +89,10 @@ const ProductDetailPage = ({ product }) => {
               ))}
             </div>
           )}
+          
+          <div className="text-sm text-gray-500 text-center mt-4 font-medium italic">
+            *Image is for reference purpose. Actual product may vary.
+          </div>
         </div>
 
         {/* Right Side: Details */}
@@ -130,16 +149,7 @@ const ProductDetailPage = ({ product }) => {
             <p className="text-white text-lg">{keyFeature}</p>
           </div>
           
-          <div className="flex items-center gap-8 border-t border-gray-800 pt-6">
-            <div>
-              <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Product Rating</p>
-              <h2 className="font-bold text-2xl text-yellow-500">{rating} <span className="text-gray-600 text-sm">/ 5</span></h2>
-            </div>
-            <div>
-              <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Average Rating</p>
-              <h2 className="font-bold text-2xl text-yellow-500">{sumRating} <span className="text-gray-600 text-sm">/ 5</span></h2>
-            </div>
-          </div>
+
         </div>
       </div>
 

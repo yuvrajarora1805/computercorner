@@ -11,13 +11,13 @@ export default async function handler(req, res) {
     }
   } else if (req.method === "POST") {
     try {
-      const { name, tag, description, price, cpu, gpu, ram, storage, image } = req.body;
+      const { name, tag, description, price, cpu, gpu, ram, storage, image, additional_items } = req.body;
       
       const query = `
-        INSERT INTO prebuilt_pcs (name, tag, description, price, cpu, gpu, ram, storage, image)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO prebuilt_pcs (name, tag, description, price, cpu, gpu, ram, storage, image, additional_items)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;
-      const values = [name, tag, description, price, cpu, gpu, ram, storage, image];
+      const values = [name, tag, description, price, cpu, gpu, ram, storage, image, additional_items || '[]'];
       
       const [result] = await pool.query(query, values);
       
