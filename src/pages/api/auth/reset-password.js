@@ -1,5 +1,6 @@
 import pool from '@/utils/db';
 import { hashPassword } from './signup';
+import { sendPasswordChangeSuccessEmail } from '@/utils/mailer';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -21,7 +22,7 @@ export default async function handler(req, res) {
     
     // Find user with a valid, unexpired token
     const [users] = await pool.query(
-      'SELECT id, email FROM users WHERE reset_token = ? AND reset_token_expiry > ?',
+      'SELECT id, email, username FROM users WHERE reset_token = ? AND reset_token_expiry > ?',
       [token, now]
     );
 
@@ -41,6 +42,12 @@ export default async function handler(req, res) {
       'UPDATE users SET password_hash = ?, reset_token = NULL, reset_token_expiry = NULL WHERE id = ?',
       [passwordHash, user.id]
     );
+
+    // Send confirmation email asynchronously (fire-and-forget)
+    sendPasswordChangeSuccessEmail({
+      to: user.email,
+      name: user.username || user.email.split('@')[0]
+    }).catch(err => console.error('Failed to send password change success email:', err));
 
     return res.status(200).json({ message: 'Password has been successfully reset.' });
 

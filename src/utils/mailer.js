@@ -280,3 +280,44 @@ export async function sendCustomEmail({ to, name, subject, message, orderId }) {
   });
 }
 
+/**
+ * Send password change success email to the user
+ */
+export async function sendPasswordChangeSuccessEmail({ to, name }) {
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+<body style="margin:0;padding:0;background:#0a0a0a;font-family:'Segoe UI',Arial,sans-serif;color:#fff;">
+  <div style="max-width:600px;margin:40px auto;background:#111;border:1px solid #222;border-radius:12px;overflow:hidden;">
+    <div style="background:#EAB308;padding:24px 32px;">
+      <h1 style="margin:0;font-size:20px;color:#000;font-weight:800;">⚡ The Computer Corner</h1>
+    </div>
+    <div style="padding:32px;">
+      <h2 style="margin-top:0;">Password Successfully Changed ✅</h2>
+      <p style="color:#aaa;">Hi ${name}, this is a confirmation that the password for your account has been successfully changed.</p>
+      
+      <div style="background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:16px;margin:24px 0;">
+        <p style="margin:0;font-size:13px;color:#888;">If you made this change, you don't need to do anything else!</p>
+      </div>
+      
+      <p style="color:#ef4444;font-size:14px;margin-top:24px;font-weight:bold;">Didn't make this change?</p>
+      <p style="color:#555;font-size:13px;">If you did not reset your password, please contact our support team immediately to secure your account.</p>
+    </div>
+    <div style="background:#0a0a0a;padding:16px 32px;text-align:center;border-top:1px solid #222;">
+      <p style="margin:0;font-size:12px;color:#555;">© ${new Date().getFullYear()} The Computer Corner</p>
+    </div>
+  </div>
+</body>
+</html>`;
+
+  await transporter.sendMail({
+    from: `"The Computer Corner" <${process.env.EMAIL_FROM}>`,
+    to,
+    subject: \`Your Password Was Changed — The Computer Corner\`,
+    html,
+  });
+}
