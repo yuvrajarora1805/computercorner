@@ -9,11 +9,11 @@ const securityHeaders = [
     key: 'Content-Security-Policy',
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: https://checkout.razorpay.com https://cdn.razorpay.com",
+      "script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: https://checkout.razorpay.com https://cdn.razorpay.com https://static.cloudflareinsights.com",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: blob: https://i.ibb.co https://images.unsplash.com https://encrypted-tbn3.gstatic.com https://www.gigabyte.com https://static.gigabyte.com",
-      "connect-src 'self' https://api.razorpay.com https://lumberjack.razorpay.com https://api.postalpincode.in",
+      "connect-src 'self' https://api.razorpay.com https://lumberjack.razorpay.com https://api.postalpincode.in https://cloudflareinsights.com",
       "frame-src https://api.razorpay.com",
       "worker-src 'self' blob:",
     ].join('; ')

@@ -27,6 +27,8 @@ services:
       - PAYU_MERCHANT_SALT=${PAYU_MERCHANT_SALT}
       - PAYU_CLIENT_ID=${PAYU_CLIENT_ID}
       - PAYU_CLIENT_SECRET=${PAYU_CLIENT_SECRET}
+      - ADMIN_USER=${ADMIN_USER}
+      - ADMIN_PASS=${ADMIN_PASS}
     depends_on:
       db:
         condition: service_healthy

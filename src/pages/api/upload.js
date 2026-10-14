@@ -1,7 +1,6 @@
 import formidable from 'formidable';
 import path from 'path';
 import fs from 'fs';
-import sharp from 'sharp';
 
 export const config = {
   api: {
@@ -32,7 +31,8 @@ export default async function handler(req, res) {
 
   form.parse(req, async (err, fields, files) => {
     if (err) {
-      return res.status(500).json({ error: 'Failed to upload files' });
+      console.error("Formidable error:", err);
+      return res.status(500).json({ error: 'Failed to upload files', details: err.message });
     }
 
     const uploadedFiles = [];
@@ -41,37 +41,49 @@ export default async function handler(req, res) {
     for (const file of fileArray) {
       const ext = path.extname(file.originalFilename || '').toLowerCase();
       if (!ALLOWED_TYPES.includes(file.mimetype) || !ALLOWED_EXTENSIONS.includes(ext)) {
-        // Delete the bad file
         try { fs.unlinkSync(file.filepath); } catch(_) {}
         return res.status(400).json({ error: 'Only image files (jpg, png, webp, gif) are allowed.' });
       }
       
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      
       try {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        const webpFilename = `img-${uniqueSuffix}.webp`;
-        const webpPath = path.join(uploadDir, webpFilename);
-        
-        if (ext === '.gif') {
-           // Skip compression for GIFs to preserve animations
-           const gifPath = path.join(uploadDir, `img-${uniqueSuffix}.gif`);
-           fs.renameSync(file.filepath, gifPath);
-           uploadedFiles.push(`/uploads/img-${uniqueSuffix}.gif`);
-        } else {
-           // Compress image: resize if too large (max 1200px width), convert to webp, 80% quality
-           await sharp(file.filepath)
-             .resize({ width: 1200, withoutEnlargement: true })
-             .webp({ quality: 80 })
-             .toFile(webpPath);
-             
-           // Delete the original uncompressed file from formidable
-           fs.unlinkSync(file.filepath);
-           uploadedFiles.push(`/uploads/${webpFilename}`);
+        let sharpModule = null;
+        try {
+          sharpModule = (await import('sharp')).default;
+        } catch (e) {
+          console.warn("Sharp not available, fallback to direct upload:", e.message);
         }
-      } catch (compressionError) {
-        console.error("Compression error:", compressionError);
-        // Fallback: if compression fails, keep original
-        const relativePath = `/uploads/${path.basename(file.filepath)}`;
-        uploadedFiles.push(relativePath);
+
+        if (sharpModule && ext !== '.gif') {
+          const webpFilename = `img-${uniqueSuffix}.webp`;
+          const webpPath = path.join(uploadDir, webpFilename);
+          await sharpModule(file.filepath)
+            .resize({ width: 1200, withoutEnlargement: true })
+            .webp({ quality: 80 })
+            .toFile(webpPath);
+          try { fs.unlinkSync(file.filepath); } catch(_) {}
+          uploadedFiles.push(`/uploads/${webpFilename}`);
+        } else {
+          const safeExt = ext || '.jpg';
+          const targetFilename = `img-${uniqueSuffix}${safeExt}`;
+          const targetPath = path.join(uploadDir, targetFilename);
+          fs.copyFileSync(file.filepath, targetPath);
+          try { fs.unlinkSync(file.filepath); } catch(_) {}
+          uploadedFiles.push(`/uploads/${targetFilename}`);
+        }
+      } catch (err) {
+        console.error("Upload error for file:", err);
+        const safeExt = ext || '.jpg';
+        const targetFilename = `img-${uniqueSuffix}${safeExt}`;
+        const targetPath = path.join(uploadDir, targetFilename);
+        try {
+          fs.copyFileSync(file.filepath, targetPath);
+          try { fs.unlinkSync(file.filepath); } catch(_) {}
+          uploadedFiles.push(`/uploads/${targetFilename}`);
+        } catch(copyErr) {
+          console.error("Direct copy failed:", copyErr);
+        }
       }
     }
 

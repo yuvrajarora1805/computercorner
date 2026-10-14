@@ -35,6 +35,7 @@ async function initDB() {
       CREATE TABLE IF NOT EXISTS orders (
         id VARCHAR(255) PRIMARY KEY,
         user_email VARCHAR(255) NOT NULL,
+        user_phone VARCHAR(50),
         total_amount DECIMAL(10,2) NOT NULL,
         payment_status VARCHAR(50) DEFAULT 'Pending',
         order_status VARCHAR(50) DEFAULT 'Processing',
@@ -60,6 +61,19 @@ async function initDB() {
     `;
     await connection.query(createOrderItemsTableQuery);
     console.log('Order Items table created or already exists.');
+
+    const createUsersTableQuery = `
+      CREATE TABLE IF NOT EXISTS users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        username VARCHAR(255) NOT NULL,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        password_hash VARCHAR(255) NOT NULL,
+        role VARCHAR(50) DEFAULT 'user',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `;
+    await connection.query(createUsersTableQuery);
+    console.log('Users table created or already exists.');
     
     // Check if empty, maybe seed from vercel api
     const [rows] = await connection.query('SELECT COUNT(*) as count FROM products');
