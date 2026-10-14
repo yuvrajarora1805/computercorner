@@ -136,7 +136,14 @@ const Navbar = () => {
                         className="flex items-center gap-3 p-3 hover:bg-gray-800 cursor-pointer border-b border-gray-800 last:border-b-0 transition-colors"
                       >
                         <div className="w-10 h-10 bg-black rounded shrink-0 overflow-hidden">
-                          {product.img && <img src={product.img} alt={product.name} className="w-full h-full object-cover" />}
+                          {product.img && (() => {
+                            let src = product.img;
+                            try {
+                              const parsed = JSON.parse(product.img);
+                              src = Array.isArray(parsed) ? parsed[0] : parsed;
+                            } catch (_) {}
+                            return <img src={src} alt={product.name} className="w-full h-full object-cover" />;
+                          })()}
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-semibold text-white truncate">{product.name}</p>

@@ -463,9 +463,14 @@ const pcbuilder = () => {
                 <div key={product._id} className="flex justify-between items-center bg-[#222] border border-gray-700 p-4 rounded-lg hover:border-[#00ff80] transition-colors cursor-pointer group">
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 relative bg-black rounded flex items-center justify-center overflow-hidden shrink-0 border border-gray-800">
-                      {product.img ? (
-                        <Image src={product.img} alt={product.name} layout="fill" objectFit="cover" />
-                      ) : (
+                      {product.img ? (() => {
+                        let src = product.img;
+                        try {
+                          const parsed = JSON.parse(product.img);
+                          src = Array.isArray(parsed) ? parsed[0] : parsed;
+                        } catch (_) {}
+                        return <Image src={src} alt={product.name} layout="fill" objectFit="cover" />;
+                      })() : (
                         <span className="text-xs text-gray-500">Img</span>
                       )}
                     </div>
