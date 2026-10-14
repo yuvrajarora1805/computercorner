@@ -29,6 +29,14 @@ const nextConfig = {
   images: {
     domains: ["i.ibb.co", "images.unsplash.com", "encrypted-tbn3.gstatic.com", "www.gigabyte.com", "static.gigabyte.com"],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/uploads/:path*',
+        destination: '/api/uploads/:path*',
+      },
+    ];
+  },
   async headers() {
     return [
       {
