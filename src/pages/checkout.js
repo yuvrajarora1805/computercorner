@@ -25,6 +25,22 @@ export default function Checkout() {
   });
   const [consent, setConsent] = useState(false);
   const [locationOptions, setLocationOptions] = useState([]);
+  const [deliverySettings, setDeliverySettings] = useState({ deliveryCharge: 0, freeDeliveryThreshold: 0 });
+
+  // Fetch store delivery settings
+  useEffect(() => {
+    fetch('/api/settings')
+      .then(res => res.json())
+      .then(data => {
+        if (data) {
+          setDeliverySettings({
+            deliveryCharge: Number(data.deliveryCharge || 0),
+            freeDeliveryThreshold: Number(data.freeDeliveryThreshold || 0)
+          });
+        }
+      })
+      .catch(console.error);
+  }, []);
 
   // Redirect if unauthenticated
   useEffect(() => {
@@ -74,7 +90,16 @@ export default function Checkout() {
     }
   }, [session]);
 
-  const totalAmount = items.reduce((sum, item) => sum + (Number(String(item.price).replace(/,/g, '')) * (item.cartQuantity || 1)), 0);
+  const subtotal = items.reduce((sum, item) => sum + (Number(String(item.price).replace(/,/g, '')) * (item.cartQuantity || 1)), 0);
+  
+  // Calculate delivery fee based on store settings
+  const isFreeDelivery = 
+    deliverySettings.freeDeliveryThreshold > 0 
+      ? subtotal >= deliverySettings.freeDeliveryThreshold 
+      : deliverySettings.deliveryCharge === 0;
+
+  const deliveryCharge = isFreeDelivery ? 0 : deliverySettings.deliveryCharge;
+  const finalTotal = subtotal + deliveryCharge;
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -146,7 +171,7 @@ export default function Checkout() {
       const res = await fetch('/api/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: totalAmount, user: formData, items })
+        body: JSON.stringify({ amount: finalTotal, user: formData, items })
       });
       const data = await res.json();
       
@@ -256,132 +281,168 @@ export default function Checkout() {
   return (
     <>
       <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
-      <div className="bg-[#050505] min-h-screen text-white font-sans py-12 px-4 sm:px-6 lg:px-8">
+      <div className="bg-[#050505] min-h-screen text-white font-sans py-8 md:py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-10">
-          Secure <span className="text-yellow-500">Checkout</span>
-        </h1>
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-          <div className="lg:col-span-7">
-            <form onSubmit={handlePayment} className="bg-[#111] p-8 rounded-xl border border-gray-800 space-y-6">
-              <h3 className="text-xl font-bold uppercase tracking-wider mb-6">Shipping Information</h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">Full Name</label>
-                  <input required type="text" name="name" value={formData.name} onChange={handleChange} className="w-full bg-[#1a1a1a] border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-yellow-500 transition-colors" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">Email Address</label>
-                  <input required type="email" name="email" value={formData.email} onChange={handleChange} className="w-full bg-[#1a1a1a] border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-yellow-500 transition-colors" />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-400 mb-2">Phone Number</label>
-                <input required type="tel" name="phone" pattern="[0-9]{10}" maxLength="10" minLength="10" title="Please enter exactly 10 digits" value={formData.phone} onChange={(e) => {
-                  const val = e.target.value.replace(/\D/g, '');
-                  if(val.length <= 10) handleChange({target: {name: 'phone', value: val}});
-                }} className="w-full bg-[#1a1a1a] border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-yellow-500 transition-colors" />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-400 mb-2">Street Address</label>
-                <input required type="text" name="address" value={formData.address} onChange={handleChange} className="w-full bg-[#1a1a1a] border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-yellow-500 transition-colors" />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">City / Area</label>
-                  {locationOptions.length > 0 ? (
-                    <select name="city" value={formData.city} onChange={handleChange} className="w-full bg-[#1a1a1a] border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-yellow-500 transition-colors">
-                      {locationOptions.map((po, idx) => (
-                        <option key={idx} value={po.Name}>{po.Name} ({po.District})</option>
-                      ))}
-                    </select>
-                  ) : (
-                    <input required type="text" name="city" value={formData.city} onChange={handleChange} className="w-full bg-[#1a1a1a] border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-yellow-500 transition-colors" />
-                  )}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">State</label>
-                  <input required type="text" name="state" value={formData.state} onChange={handleChange} className="w-full bg-[#1a1a1a] border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-yellow-500 transition-colors" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">PIN Code</label>
-                  <input required type="text" name="pincode" value={formData.pincode} pattern="[0-9]{6}" maxLength="6" title="Enter exactly 6 digits" onChange={(e) => {
-                    const val = e.target.value.replace(/\D/g, '');
-                    if(val.length <= 6) handleChange({target: {name: 'pincode', value: val}});
-                  }} className="w-full bg-[#1a1a1a] border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-yellow-500 transition-colors" placeholder="e.g. 110001" />
-                  <p className="text-xs text-gray-500 mt-1">City and State will auto-fill</p>
-                </div>
-              </div>
-
-              <div className="pt-4 border-t border-gray-800">
-                <label className="flex items-start gap-3 cursor-pointer">
-                  <input 
-                    type="checkbox" 
-                    required 
-                    checked={consent}
-                    onChange={(e) => setConsent(e.target.checked)}
-                    className="mt-1 w-4 h-4 rounded border-gray-700 text-yellow-500 focus:ring-yellow-500 bg-[#1a1a1a]" 
-                  />
-                  <span className="text-xs text-gray-400 leading-relaxed">
-                    I agree to the <Link href="/terms" target="_blank" className="text-yellow-500 hover:underline">Terms & Conditions</Link> and <Link href="/privacy-policy" target="_blank" className="text-yellow-500 hover:underline">Privacy Policy</Link>, and I explicitly consent to the processing of my personal data for order fulfillment as required by the DPDP Act 2023.
-                  </span>
-                </label>
-              </div>
-
-              <div className="pt-4">
-                <button 
-                  type="submit" 
-                  disabled={loading || items.length === 0 || !consent}
-                  className="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-4 rounded transition-colors uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {loading ? 'Processing...' : `Pay ₹${totalAmount.toLocaleString()}`}
-                </button>
-              </div>
-            </form>
+          <div className="mb-8">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight uppercase">
+              Secure <span className="text-yellow-500">Checkout</span>
+            </h1>
+            <p className="text-xs sm:text-sm text-gray-400 mt-1">
+              Complete your shipping address and proceed with payment
+            </p>
           </div>
 
-          <div className="lg:col-span-5">
-            <div className="bg-[#111] p-8 rounded-xl border border-gray-800 sticky top-24">
-              <h3 className="text-xl font-bold border-b border-gray-800 pb-4 mb-6 uppercase tracking-wider">Your Order</h3>
-              
-              <div className="space-y-6 mb-6 max-h-[400px] overflow-y-auto custom-scrollbar pr-2">
-                {items.map(item => (
-                  <div key={item._id} className="flex gap-4">
-                    <div className="w-16 h-16 bg-black rounded overflow-hidden shrink-0 border border-gray-700">
-                      {item.img && <img src={item.img} alt={item.name} className="w-full h-full object-cover" />}
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="text-sm font-bold text-gray-200 line-clamp-2">{item.name}</h4>
-                      <p className="text-xs text-gray-500 mt-1">Qty: {item.cartQuantity || 1}</p>
-                    </div>
-                    <div className="text-sm font-bold text-yellow-500 shrink-0">
-                      ₹{(Number(String(item.price).replace(/,/g, '')) * (item.cartQuantity || 1)).toLocaleString()}
-                    </div>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            
+            {/* Shipping Form (Left column on desktop, ordered after or top) */}
+            <div className="lg:col-span-7">
+              <form onSubmit={handlePayment} className="bg-[#111] p-5 sm:p-8 rounded-2xl border border-gray-800 space-y-6">
+                <h3 className="text-lg font-black uppercase tracking-wider pb-2 border-b border-gray-800">
+                  Shipping Information
+                </h3>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Full Name</label>
+                    <input required type="text" name="name" value={formData.name} onChange={handleChange} className="w-full bg-[#1a1a1a] border border-gray-700 rounded-xl p-3 text-white focus:outline-none focus:border-yellow-500 transition-colors text-sm" />
                   </div>
-                ))}
-              </div>
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Email Address</label>
+                    <input required type="email" name="email" value={formData.email} onChange={handleChange} className="w-full bg-[#1a1a1a] border border-gray-700 rounded-xl p-3 text-white focus:outline-none focus:border-yellow-500 transition-colors text-sm" />
+                  </div>
+                </div>
 
-              <div className="border-t border-gray-800 pt-6 space-y-4">
-                <div className="flex justify-between text-gray-400">
-                  <span>Subtotal</span>
-                  <span className="font-bold text-white">₹{totalAmount.toLocaleString()}</span>
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Phone Number</label>
+                  <input required type="tel" name="phone" pattern="[0-9]{10}" maxLength="10" minLength="10" title="Please enter exactly 10 digits" value={formData.phone} onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, '');
+                    if(val.length <= 10) handleChange({target: {name: 'phone', value: val}});
+                  }} className="w-full bg-[#1a1a1a] border border-gray-700 rounded-xl p-3 text-white focus:outline-none focus:border-yellow-500 transition-colors text-sm" placeholder="10-digit mobile number" />
                 </div>
-                <div className="flex justify-between text-gray-400">
-                  <span>Shipping</span>
-                  <span className="font-bold text-white">Free</span>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Street Address</label>
+                  <input required type="text" name="address" value={formData.address} onChange={handleChange} className="w-full bg-[#1a1a1a] border border-gray-700 rounded-xl p-3 text-white focus:outline-none focus:border-yellow-500 transition-colors text-sm" placeholder="House/Flat No., Building, Street, Area" />
                 </div>
-                <div className="flex justify-between items-center border-t border-gray-800 pt-4">
-                  <span className="text-lg">Total</span>
-                  <span className="text-2xl font-bold text-yellow-500">₹{totalAmount.toLocaleString()}</span>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">City / Area</label>
+                    {locationOptions.length > 0 ? (
+                      <select name="city" value={formData.city} onChange={handleChange} className="w-full bg-[#1a1a1a] border border-gray-700 rounded-xl p-3 text-white focus:outline-none focus:border-yellow-500 transition-colors text-sm">
+                        {locationOptions.map((po, idx) => (
+                          <option key={idx} value={po.Name}>{po.Name} ({po.District})</option>
+                        ))}
+                      </select>
+                    ) : (
+                      <input required type="text" name="city" value={formData.city} onChange={handleChange} className="w-full bg-[#1a1a1a] border border-gray-700 rounded-xl p-3 text-white focus:outline-none focus:border-yellow-500 transition-colors text-sm" />
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">State</label>
+                    <input required type="text" name="state" value={formData.state} onChange={handleChange} className="w-full bg-[#1a1a1a] border border-gray-700 rounded-xl p-3 text-white focus:outline-none focus:border-yellow-500 transition-colors text-sm" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">PIN Code</label>
+                    <input required type="text" name="pincode" value={formData.pincode} pattern="[0-9]{6}" maxLength="6" title="Enter exactly 6 digits" onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, '');
+                      if(val.length <= 6) handleChange({target: {name: 'pincode', value: val}});
+                    }} className="w-full bg-[#1a1a1a] border border-gray-700 rounded-xl p-3 text-white focus:outline-none focus:border-yellow-500 transition-colors text-sm" placeholder="e.g. 110001" />
+                    <p className="text-[11px] text-gray-500 mt-1">City & State auto-fill</p>
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-gray-800">
+                  <label className="flex items-start gap-3 cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      required 
+                      checked={consent}
+                      onChange={(e) => setConsent(e.target.checked)}
+                      className="mt-1 w-4 h-4 rounded border-gray-700 text-yellow-500 focus:ring-yellow-500 bg-[#1a1a1a]" 
+                    />
+                    <span className="text-xs text-gray-400 leading-relaxed">
+                      I agree to the <Link href="/terms" target="_blank" className="text-yellow-500 hover:underline">Terms & Conditions</Link> and <Link href="/privacy-policy" target="_blank" className="text-yellow-500 hover:underline">Privacy Policy</Link>, and I explicitly consent to the processing of my personal data for order fulfillment as required by the DPDP Act 2023.
+                    </span>
+                  </label>
+                </div>
+
+                <div className="pt-2">
+                  <button 
+                    type="submit" 
+                    disabled={loading || items.length === 0 || !consent}
+                    className="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-black py-4 px-6 rounded-xl transition-all uppercase tracking-wider text-sm disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-yellow-500/20"
+                  >
+                    {loading ? 'Processing...' : `Pay ₹${finalTotal.toLocaleString()}`}
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            {/* Order Summary (Right Column on desktop, top/bottom on mobile) */}
+            <div className="lg:col-span-5">
+              <div className="bg-[#111] p-5 sm:p-8 rounded-2xl border border-gray-800 lg:sticky lg:top-28">
+                <h3 className="text-lg font-black border-b border-gray-800 pb-4 mb-5 uppercase tracking-wider">
+                  Order Summary ({items.length})
+                </h3>
+                
+                <div className="space-y-4 mb-6 max-h-[350px] overflow-y-auto custom-scrollbar pr-1">
+                  {items.map(item => {
+                    let imgSrc = item.img;
+                    try {
+                      const parsed = JSON.parse(item.img);
+                      imgSrc = Array.isArray(parsed) ? parsed[0] : parsed;
+                    } catch (_) {}
+
+                    return (
+                      <div key={item._id} className="flex gap-3 items-center">
+                        <div className="w-14 h-14 bg-black rounded-lg overflow-hidden shrink-0 border border-gray-800 flex items-center justify-center">
+                          {imgSrc ? (
+                            <img src={imgSrc} alt={item.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-[10px] text-gray-500">Item</span>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-xs sm:text-sm font-bold text-gray-200 line-clamp-2">{item.name}</h4>
+                          <p className="text-[11px] text-gray-500 mt-0.5">Qty: {item.cartQuantity || 1}</p>
+                        </div>
+                        <div className="text-xs sm:text-sm font-black text-yellow-400 shrink-0 text-right">
+                          ₹{(Number(String(item.price).replace(/,/g, '')) * (item.cartQuantity || 1)).toLocaleString()}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="border-t border-gray-800 pt-5 space-y-3.5 text-sm">
+                  <div className="flex justify-between text-gray-400">
+                    <span>Subtotal</span>
+                    <span className="font-bold text-white">₹{subtotal.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-gray-400">
+                    <span>Delivery / Shipping</span>
+                    {deliveryCharge === 0 ? (
+                      <span className="font-bold text-green-400 bg-green-500/10 px-2.5 py-0.5 rounded text-xs uppercase tracking-wide border border-green-500/20">
+                        Free
+                      </span>
+                    ) : (
+                      <span className="font-bold text-white">₹{deliveryCharge.toLocaleString()}</span>
+                    )}
+                  </div>
+                  {deliverySettings.freeDeliveryThreshold > 0 && subtotal < deliverySettings.freeDeliveryThreshold && (
+                    <p className="text-xs text-yellow-500/80 bg-yellow-500/10 p-2.5 rounded-lg border border-yellow-500/20">
+                      💡 Add ₹{(deliverySettings.freeDeliveryThreshold - subtotal).toLocaleString()} more for <strong className="text-yellow-400">FREE delivery</strong>!
+                    </p>
+                  )}
+                  <div className="flex justify-between items-center border-t border-gray-800 pt-4">
+                    <span className="text-base font-bold">Total</span>
+                    <span className="text-2xl font-black text-yellow-400">₹{finalTotal.toLocaleString()}</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+
           </div>
         </div>
       </div>

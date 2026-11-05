@@ -2,6 +2,962 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ═══════════════════════════════════════════════════════════
+   THE COMPUTER CORNER — Royal Anime Gaming Design System
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Google Fonts Import ──────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@400;500;600;700&display=swap');
+
+/* ── CSS Custom Properties ────────────────────────────────── */
+:root {
+  /* Brand Colours (High Contrast Jet Black + Vivid Neobrutalism Yellow) */
+  --brand-navy:       #0A0A0A;
+  --brand-navy-deep:  #121212;
+  --brand-navy-light: #1C1C1C;
+  --brand-royal:      #171717;
+  --brand-gold:       #FDC800;
+  --brand-champagne:  #FDC800;
+  --brand-electric:   #FDC800;
+  --brand-neon:       #FFE500;
+  --brand-graphite:   #141414;
+  --brand-titanium:   #1E1E1E;
+  --brand-steel:      #262626;
+  --brand-white:      #FFFFFF;
+  --brand-sakura:     #FF6B9D;
+  --brand-purple:     #432DD7;
+  --brand-teal:       #16A34A;
+
+  /* Official Neobrutalism System Tokens */
+  --neo-primary:      #FDC800;
+  --neo-secondary:    #432DD7;
+  --neo-success:      #16A34A;
+  --neo-warning:      #D97706;
+  --neo-danger:       #DC2626;
+  --neo-surface:      #FBFBF9;
+  --neo-text:         #1C293C;
+  --neo-neutral:      #FBFBF9;
+
+  /* Neobrutalism Shadows */
+  --shadow-brutal:    4px 4px 0px var(--neo-text);
+  --shadow-brutal-sm: 2px 2px 0px var(--neo-text);
+  --shadow-brutal-lg: 6px 6px 0px var(--neo-text);
+
+  /* Neumorphic Shadows */
+  --neu-dark:  #050a15;
+  --neu-light: #0d1e3d;
+
+  /* Radii */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+}
+
+/* ── Base Styles ──────────────────────────────────────────── */
 body {
-  @apply bg-[#050505] text-white;
+  background-color: var(--brand-navy);
+  color: var(--brand-white);
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--brand-navy);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--brand-royal);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--brand-gold);
+}
+
+/* Selection */
+::selection {
+  background: rgba(214, 168, 79, 0.3);
+  color: var(--brand-white);
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   NEUMORPHIC UTILITIES
+   ═══════════════════════════════════════════════════════════ */
+
+@layer components {
+
+  /* ── Neumorphic Cards ───────────────────────────────────── */
+  .neu-card {
+    background: var(--brand-navy-deep);
+    border-radius: var(--radius-lg);
+    box-shadow:
+      8px 8px 20px var(--neu-dark),
+      -8px -8px 20px var(--neu-light);
+    border: 1px solid rgba(18, 60, 131, 0.2);
+    transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .neu-card:hover {
+    box-shadow:
+      8px 8px 20px var(--neu-dark),
+      -8px -8px 20px var(--neu-light),
+      0 0 25px rgba(46, 124, 246, 0.2);
+    border-color: rgba(46, 124, 246, 0.3);
+    transform: translateY(-4px);
+  }
+
+  .neu-card-gold:hover {
+    box-shadow:
+      8px 8px 20px var(--neu-dark),
+      -8px -8px 20px var(--neu-light),
+      0 0 30px rgba(214, 168, 79, 0.25);
+    border-color: rgba(214, 168, 79, 0.4);
+  }
+
+  /* ── Neumorphic Buttons ─────────────────────────────────── */
+  .neu-btn {
+    background: var(--brand-navy-deep);
+    border-radius: var(--radius-md);
+    box-shadow:
+      4px 4px 10px var(--neu-dark),
+      -4px -4px 10px var(--neu-light);
+    border: 1px solid rgba(18, 60, 131, 0.15);
+    color: var(--brand-white);
+    padding: 12px 28px;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+
+  .neu-btn:hover {
+    box-shadow:
+      6px 6px 14px var(--neu-dark),
+      -6px -6px 14px var(--neu-light),
+      0 0 15px rgba(46, 124, 246, 0.2);
+    border-color: rgba(46, 124, 246, 0.3);
+  }
+
+  .neu-btn:active {
+    box-shadow:
+      inset 4px 4px 10px var(--neu-dark),
+      inset -4px -4px 10px var(--neu-light);
+  }
+
+  .neu-btn-gold {
+    background: linear-gradient(135deg, var(--brand-gold), var(--brand-champagne));
+    color: var(--brand-navy);
+    font-weight: 700;
+    box-shadow:
+      4px 4px 12px var(--neu-dark),
+      -4px -4px 12px var(--neu-light),
+      0 0 15px rgba(214, 168, 79, 0.3);
+    border: none;
+  }
+
+  .neu-btn-gold:hover {
+    box-shadow:
+      4px 4px 12px var(--neu-dark),
+      -4px -4px 12px var(--neu-light),
+      0 0 30px rgba(214, 168, 79, 0.5);
+    transform: translateY(-2px);
+  }
+
+  .neu-btn-blue {
+    background: linear-gradient(135deg, var(--brand-electric), var(--brand-neon));
+    color: var(--brand-navy);
+    font-weight: 700;
+    box-shadow:
+      4px 4px 12px var(--neu-dark),
+      -4px -4px 12px var(--neu-light),
+      0 0 15px rgba(46, 124, 246, 0.3);
+    border: none;
+  }
+
+  .neu-btn-blue:hover {
+    box-shadow:
+      4px 4px 12px var(--neu-dark),
+      -4px -4px 12px var(--neu-light),
+      0 0 30px rgba(46, 124, 246, 0.5);
+    transform: translateY(-2px);
+  }
+
+  /* ── Neumorphic Inputs ──────────────────────────────────── */
+  .neu-input {
+    background: var(--brand-navy-deep);
+    border-radius: 50px;
+    box-shadow:
+      inset 3px 3px 8px var(--neu-dark),
+      inset -3px -3px 8px var(--neu-light);
+    border: 1px solid rgba(18, 60, 131, 0.1);
+    padding: 12px 24px;
+    color: var(--brand-white);
+    font-family: 'Inter', sans-serif;
+    transition: all 0.3s ease;
+    outline: none;
+  }
+
+  .neu-input:focus {
+    box-shadow:
+      inset 3px 3px 8px var(--neu-dark),
+      inset -3px -3px 8px var(--neu-light),
+      0 0 0 2px rgba(46, 124, 246, 0.5);
+    border-color: var(--brand-electric);
+  }
+
+  .neu-input::placeholder {
+    color: rgba(245, 244, 240, 0.3);
+  }
+
+  /* ── Neumorphic Circle (Category Selectors) ─────────────── */
+  .neu-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--brand-navy-deep);
+    box-shadow:
+      6px 6px 14px var(--neu-dark),
+      -6px -6px 14px var(--neu-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
+  .neu-circle:hover {
+    box-shadow:
+      6px 6px 14px var(--neu-dark),
+      -6px -6px 14px var(--neu-light),
+      0 0 20px rgba(214, 168, 79, 0.3);
+  }
+
+  .neu-circle.active {
+    box-shadow:
+      inset 4px 4px 10px var(--neu-dark),
+      inset -4px -4px 10px var(--neu-light);
+    border: 2px solid var(--brand-gold);
+  }
+
+  /* ── Neumorphic Price Tag ───────────────────────────────── */
+  .neu-price {
+    background: var(--brand-navy-deep);
+    border-radius: var(--radius-md);
+    box-shadow:
+      inset 3px 3px 6px var(--neu-dark),
+      inset -3px -3px 6px var(--neu-light);
+    padding: 8px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--brand-gold);
+    font-weight: 700;
+  }
+
+  /* ── Neumorphic Spec Chip ───────────────────────────────── */
+  .neu-chip {
+    background: var(--brand-navy-deep);
+    border-radius: var(--radius-sm);
+    box-shadow:
+      3px 3px 6px var(--neu-dark),
+      -3px -3px 6px var(--neu-light);
+    padding: 4px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--brand-neon);
+    border: 1px solid rgba(46, 124, 246, 0.15);
+    display: inline-block;
+  }
+
+
+  /* ═══════════════════════════════════════════════════════════
+     GLASSMORPHIC UTILITIES
+     ═══════════════════════════════════════════════════════════ */
+
+  .glass {
+    background: rgba(7, 19, 41, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(214, 168, 79, 0.1);
+  }
+
+  .glass-blue {
+    background: rgba(18, 60, 131, 0.15);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(46, 124, 246, 0.15);
+  }
+
+
+  /* ═══════════════════════════════════════════════════════════
+     ANIME / MANGA UTILITIES
+     ═══════════════════════════════════════════════════════════ */
+
+  /* ── 100% Pure High-Visibility Yellow Text (No white wash) ── */
+  .shimmer-gold, .shimmer-yellow {
+    color: #FDC800;
+    -webkit-text-fill-color: #FDC800;
+    text-shadow: 0 0 20px rgba(253, 200, 0, 0.3);
+  }
+
+  /* ── Pure Yellow Text (static) ───────────────────────────── */
+  .text-gradient-gold, .text-gradient-yellow {
+    color: #FDC800;
+    -webkit-text-fill-color: #FDC800;
+  }
+
+  /* ── Accent Yellow Text ──────────────────────────────────── */
+  .text-gradient-blue, .text-gradient-accent {
+    color: #FDC800;
+    -webkit-text-fill-color: #FDC800;
+  }
+
+  /* ── Manga Speed Lines Background ───────────────────────── */
+  .manga-speed-lines {
+    position: relative;
+  }
+  .manga-speed-lines::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 8px,
+        rgba(46, 124, 246, 0.03) 8px,
+        rgba(46, 124, 246, 0.03) 9px
+      );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── XPG-style Typographic Diagonal Watermark ────────────── */
+  .watermark-pattern {
+    position: relative;
+    overflow: hidden;
+  }
+  .watermark-pattern::before {
+    content: "XTREME TCC GAMING RIGS BATTLESTATION XTREME TCC GAMING RIGS BATTLESTATION XTREME TCC GAMING RIGS BATTLESTATION XTREME TCC GAMING RIGS BATTLESTATION XTREME TCC GAMING RIGS BATTLESTATION";
+    position: absolute;
+    top: -40%;
+    left: -40%;
+    width: 180%;
+    height: 180%;
+    font-family: 'Orbitron', 'Inter', sans-serif;
+    font-size: 4.5rem;
+    font-weight: 900;
+    line-height: 1.3;
+    letter-spacing: 0.15em;
+    color: rgba(253, 200, 0, 0.04);
+    transform: rotate(-16deg);
+    pointer-events: none;
+    z-index: 1;
+    word-break: break-all;
+    user-select: none;
+  }
+
+  /* ── Manga Section Divider (Slanted) ────────────────────── */
+  .manga-divider {
+    position: relative;
+    height: 60px;
+    margin: -1px 0;
+    overflow: hidden;
+  }
+  .manga-divider::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, var(--brand-gold), var(--brand-electric));
+    clip-path: polygon(0 0, 100% 40%, 100% 60%, 0 100%);
+  }
+  .manga-divider::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 0;
+    right: 0;
+    bottom: 2px;
+    background: var(--brand-navy);
+    clip-path: polygon(0 4%, 100% 42%, 100% 58%, 0 96%);
+  }
+
+  /* ── Manga Divider Reverse ──────────────────────────────── */
+  .manga-divider-reverse::before {
+    clip-path: polygon(0 40%, 100% 0, 100% 100%, 0 60%);
+  }
+  .manga-divider-reverse::after {
+    clip-path: polygon(0 42%, 100% 4%, 100% 96%, 0 58%);
+  }
+
+  /* ── Comic Burst Badge ──────────────────────────────────── */
+  .manga-burst {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--brand-gold), var(--brand-champagne));
+    color: var(--brand-navy);
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    padding: 14px 22px;
+    clip-path: polygon(
+      50% 0%, 61% 11%, 75% 3%, 72% 19%,
+      88% 19%, 79% 31%, 95% 38%, 82% 46%,
+      95% 57%, 80% 59%, 88% 75%, 72% 69%,
+      75% 87%, 61% 76%, 50% 90%, 39% 76%,
+      25% 87%, 28% 69%, 12% 75%, 20% 59%,
+      5% 57%, 18% 46%, 5% 38%, 21% 31%,
+      12% 19%, 28% 19%, 25% 3%, 39% 11%
+    );
+    animation: manga-bounce 0.5s cubic-bezier(0.36, 1.4, 0.5, 1);
+  }
+
+  /* ── Japanese Watermark Text ────────────────────────────── */
+  .jp-watermark {
+    position: relative;
+  }
+  .jp-watermark::before {
+    content: 'コンピュータ';
+    position: absolute;
+    font-size: 100px;
+    font-weight: 900;
+    color: rgba(18, 60, 131, 0.05);
+    top: 50%;
+    right: -20px;
+    transform: translateY(-50%) rotate(-90deg);
+    pointer-events: none;
+    letter-spacing: 15px;
+    z-index: 0;
+  }
+
+  /* ── Energy Orb (floating background glow) ──────────────── */
+  .energy-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    pointer-events: none;
+    animation: float 8s ease-in-out infinite;
+  }
+  .energy-orb-blue {
+    background: radial-gradient(circle, rgba(46,124,246,0.12) 0%, transparent 70%);
+  }
+  .energy-orb-gold {
+    background: radial-gradient(circle, rgba(214,168,79,0.10) 0%, transparent 70%);
+  }
+  .energy-orb-purple {
+    background: radial-gradient(circle, rgba(139,92,246,0.10) 0%, transparent 70%);
+  }
+
+  /* ── Animated Energy Border ─────────────────────────────── */
+  .energy-border {
+    position: relative;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+  .energy-border::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: calc(var(--radius-lg) + 2px);
+    background: conic-gradient(
+      from 0deg,
+      var(--brand-gold),
+      var(--brand-electric),
+      var(--brand-purple),
+      var(--brand-electric),
+      var(--brand-gold)
+    );
+    animation: rotate-border 4s linear infinite;
+    z-index: -1;
+  }
+  .energy-border::after {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    border-radius: calc(var(--radius-lg) - 2px);
+    background: var(--brand-navy-deep);
+    z-index: -1;
+  }
+
+  /* ── Power Level Bar ────────────────────────────────────── */
+  .power-bar {
+    height: 6px;
+    background: var(--brand-graphite);
+    border-radius: 3px;
+    overflow: hidden;
+    box-shadow: inset 2px 2px 4px var(--neu-dark);
+  }
+  .power-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--brand-electric), var(--brand-neon));
+    animation: power-fill 1.5s ease-out forwards;
+    box-shadow: 0 0 8px rgba(46, 124, 246, 0.5);
+  }
+  .power-bar-fill.legendary {
+    background: linear-gradient(90deg, var(--brand-gold), var(--brand-champagne));
+    box-shadow: 0 0 12px rgba(214, 168, 79, 0.5);
+  }
+
+  /* ── Sakura Petal ───────────────────────────────────────── */
+  .sakura-petal {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: radial-gradient(ellipse, var(--brand-sakura) 30%, transparent 70%);
+    border-radius: 50% 0 50% 0;
+    animation: sakura-fall linear infinite;
+    pointer-events: none;
+    opacity: 0.6;
+  }
+
+  /* ── Section Heading ────────────────────────────────────── */
+  .section-heading {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .section-heading-underline {
+    position: relative;
+    display: inline-block;
+    padding-bottom: 12px;
+  }
+  .section-heading-underline::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--brand-gold), transparent);
+    border-radius: 2px;
+  }
+
+  /* ── Royal Badge ────────────────────────────────────────── */
+  .royal-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 16px;
+    border-radius: 50px;
+    background: rgba(214, 168, 79, 0.1);
+    border: 1px solid rgba(214, 168, 79, 0.25);
+    color: var(--brand-gold);
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+  }
+
+  /* ── Anime Glow Ring ────────────────────────────────────── */
+  .glow-ring-gold {
+    box-shadow: 0 0 0 2px rgba(214, 168, 79, 0.3),
+                0 0 15px rgba(214, 168, 79, 0.15);
+  }
+  .glow-ring-blue {
+    box-shadow: 0 0 0 2px rgba(46, 124, 246, 0.3),
+                0 0 15px rgba(46, 124, 246, 0.15);
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     CYBER-NEUBRUTALISM & HIGH VISIBILITY DESIGN TOKENS
+     Inspired by bold borders, hard offset shadows, starburst
+     stickers & sleek spring micro-animations.
+     ═══════════════════════════════════════════════════════════ */
+
+  /* ── Hard Offset Drop Shadows (No blur, ultra crisp) ─────── */
+  .shadow-brutal-sm {
+    box-shadow: 3px 3px 0px #000000;
+  }
+  .shadow-brutal {
+    box-shadow: 4px 4px 0px #000000;
+  }
+  .shadow-brutal-lg {
+    box-shadow: 6px 6px 0px #000000;
+  }
+  .shadow-brutal-xl {
+    box-shadow: 8px 8px 0px #000000;
+  }
+  .shadow-brutal-gold {
+    box-shadow: 4px 4px 0px #FDC800;
+  }
+  .shadow-brutal-blue {
+    box-shadow: 4px 4px 0px #2E7CF6;
+  }
+  .shadow-brutal-purple {
+    box-shadow: 4px 4px 0px #8B5CF6;
+  }
+
+  /* ── Neubrutalist Card ───────────────────────────────────── */
+  .brutal-card {
+    background-color: var(--brand-navy-deep);
+    border: 2px solid rgba(245, 244, 240, 0.85);
+    box-shadow: 5px 5px 0px #000000;
+    border-radius: 16px;
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .brutal-card:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 8px 8px 0px #000000;
+    border-color: var(--brand-gold);
+  }
+
+  /* Light Neubrutalist Surface (for polaroids / pop stickers) */
+  .brutal-surface-light {
+    background-color: #FFFDF7;
+    color: #071329;
+    border: 3px solid #000000;
+    box-shadow: 5px 5px 0px #000000;
+    border-radius: 16px;
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .brutal-surface-light:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 8px 8px 0px #000000;
+  }
+
+  /* ── Neubrutalist Action Buttons ─────────────────────────── */
+  .brutal-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: 'Rajdhani', 'Inter', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    border: 2.5px solid #000000;
+    border-radius: 12px;
+    box-shadow: 4px 4px 0px #000000;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    cursor: pointer;
+  }
+  .brutal-btn:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px #000000;
+  }
+  .brutal-btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0px #000000;
+  }
+
+  .brutal-btn-gold {
+    background: #FDC800;
+    color: #000000;
+    font-weight: 800;
+  }
+  .brutal-btn-gold:hover {
+    background: #FFE266;
+    color: #000000;
+  }
+
+  .brutal-btn-blue {
+    background: #2E7CF6;
+    color: #FFFFFF;
+  }
+  .brutal-btn-blue:hover {
+    background: #4DA3FF;
+  }
+
+  .brutal-btn-purple {
+    background: #A78BFA;
+    color: #071329;
+  }
+  .brutal-btn-purple:hover {
+    background: #C4B5FD;
+  }
+
+  /* ── Neubrutalist Pill Badge (like user reference) ───────── */
+  .brutal-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 18px;
+    border: 2.5px solid #000000;
+    border-radius: 9999px;
+    box-shadow: 3px 3px 0px #000000;
+    font-family: 'Orbitron', 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.04em;
+    transition: all 0.2s ease;
+  }
+  .brutal-pill:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0px #000000;
+  }
+
+  /* ── Spiky Starburst Badge (like reference sticker!) ─────── */
+  .starburst-sticker {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    filter: drop-shadow(3px 3px 0px #000000);
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .starburst-sticker:hover {
+    transform: scale(1.1) rotate(6deg);
+  }
+
+  /* Wiggle Animation for stickers */
+  @keyframes stickerWiggle {
+    0%, 100% { transform: rotate(-3deg); }
+    50% { transform: rotate(3deg); }
+  }
+  .animate-wiggle {
+    animation: stickerWiggle 4s ease-in-out infinite;
+  }
+
+  /* Polaroid Frame (Neubrutalism photo card) */
+  .polaroid-card {
+    background: #FFFDF7;
+    border: 3px solid #000000;
+    box-shadow: 6px 6px 0px #000000;
+    border-radius: 14px;
+    padding: 12px 12px 16px 12px;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .polaroid-card:hover {
+    transform: translate(-3px, -3px) rotate(1deg);
+    box-shadow: 9px 9px 0px #000000;
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     INTERACTIVE GAMING GRID & BANNER HOVER ANIMATIONS
+     ═══════════════════════════════════════════════════════════ */
+
+  /* Laser Radar Scan line across gaming grid */
+  @keyframes laserScan {
+    0% {
+      top: -10%;
+      opacity: 0;
+    }
+    15% {
+      opacity: 0.9;
+    }
+    85% {
+      opacity: 0.9;
+    }
+    100% {
+      top: 110%;
+      opacity: 0;
+    }
+  }
+  .animate-laser-scan {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent 0%, rgba(253, 200, 0, 0.3) 20%, #FDC800 50%, rgba(253, 200, 0, 0.3) 80%, transparent 100%);
+    box-shadow: 0 0 15px #FDC800, 0 0 30px #FDC800;
+    animation: laserScan 5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* Gaming Grid Card with Holographic Sheen Sweep on Hover */
+  .gaming-grid-card {
+    position: relative;
+    border: 2px solid #000000;
+    box-shadow: 4px 4px 0px #000000;
+    transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.24s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.24s ease;
+  }
+  .gaming-grid-card:hover {
+    transform: translate(-4px, -4px);
+    border-color: #FDC800 !important;
+    box-shadow: 8px 8px 0px #000000 !important;
+  }
+
+  /* Holographic light sweep on hover */
+  .holo-sweep {
+    position: relative;
+    overflow: hidden;
+  }
+  .holo-sweep::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -120%;
+    width: 80%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(253, 200, 0, 0.08),
+      rgba(255, 255, 255, 0.2),
+      rgba(253, 200, 0, 0.08),
+      transparent
+    );
+    transform: skewX(-20deg);
+    transition: left 0.75s ease-in-out;
+    pointer-events: none;
+    z-index: 20;
+  }
+  .gaming-grid-card:hover .holo-sweep::after,
+  .group:hover .holo-sweep::after {
+    left: 140%;
+  }
+
+  /* Cyber Corner Tech Brackets */
+  .tech-bracket-tl {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    width: 8px;
+    height: 8px;
+    border-top: 2px solid #FDC800;
+    border-left: 2px solid #FDC800;
+    opacity: 0;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+    z-index: 10;
+  }
+  .tech-bracket-br {
+    position: absolute;
+    bottom: 6px;
+    right: 6px;
+    width: 8px;
+    height: 8px;
+    border-bottom: 2px solid #FDC800;
+    border-right: 2px solid #FDC800;
+    opacity: 0;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+    z-index: 10;
+  }
+  .group:hover .tech-bracket-tl {
+    opacity: 1;
+    transform: translate(-2px, -2px);
+  }
+  .group:hover .tech-bracket-br {
+    opacity: 1;
+    transform: translate(2px, 2px);
+  }
+
+  /* ── Gold Energy Border (Traveling Light Highlight around Card) ── */
+  .card-energy-beam {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 15;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+  }
+  .gaming-grid-card:hover .card-energy-beam,
+  .group:hover .card-energy-beam {
+    opacity: 1;
+  }
+  .card-energy-beam::before {
+    content: '';
+    position: absolute;
+    inset: -60%;
+    width: 220%;
+    height: 220%;
+    background: conic-gradient(
+      from 0deg,
+      transparent 0deg,
+      transparent 70deg,
+      rgba(253, 200, 0, 0.2) 80deg,
+      #FDC800 88deg,
+      #FFFFFF 90deg,
+      #FDC800 92deg,
+      rgba(253, 200, 0, 0.2) 100deg,
+      transparent 110deg,
+      transparent 360deg
+    );
+    animation: border-beam-spin 3.2s linear infinite;
+    -webkit-mask: 
+      linear-gradient(#fff 0 0) content-box, 
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    padding: 2px;
+    border-radius: inherit;
+  }
+  @keyframes border-beam-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  /* ── Anime Energy Sweep Behind Product Image ── */
+  .anime-energy-sweep {
+    background: radial-gradient(circle at 50% 50%, rgba(67, 45, 215, 0.3) 0%, rgba(253, 200, 0, 0.2) 45%, transparent 70%);
+    mix-blend-mode: screen;
+    animation: anime-pulse 2s ease-in-out infinite alternate;
+  }
+  @keyframes anime-pulse {
+    0% { transform: scale(0.92); opacity: 0.6; }
+    100% { transform: scale(1.1); opacity: 1; }
+  }
+
+  /* ── Subtle Badge Glint Animation (for HOT / TOP badge) ── */
+  @keyframes badge-glint {
+    0%, 75%, 100% {
+      transform: scale(1) rotate(0deg);
+      filter: drop-shadow(0 0 0px transparent);
+    }
+    82% {
+      transform: scale(1.08) rotate(-4deg);
+      filter: drop-shadow(0 0 6px rgba(253, 200, 0, 0.7));
+    }
+    88% {
+      transform: scale(1.05) rotate(3deg);
+      filter: drop-shadow(0 0 10px rgba(253, 200, 0, 0.9));
+    }
+    94% {
+      transform: scale(1.02) rotate(-1deg);
+      filter: drop-shadow(0 0 4px rgba(253, 200, 0, 0.5));
+    }
+  }
+  .animate-badge-glint {
+    animation: badge-glint 4.5s ease-in-out infinite;
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   UTILITY OVERRIDES
+   ═══════════════════════════════════════════════════════════ */
+
+/* Focus visible for accessibility */
+*:focus-visible {
+  outline: 2px solid var(--brand-electric);
+  outline-offset: 2px;
+}
+
+/* Link defaults */
+a {
+  transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+/* Image defaults */
+img {
+  max-width: 100%;
+  height: auto;
 }

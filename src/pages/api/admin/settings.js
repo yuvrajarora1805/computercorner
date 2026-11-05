@@ -20,7 +20,7 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Server error' });
     }
   } else if (req.method === 'POST') {
-    const { storeName, contactEmail, announcementBanner } = req.body;
+    const { storeName, contactEmail, announcementBanner, deliveryCharge, freeDeliveryThreshold } = req.body;
     try {
       // Upsert logic for safety
       const updateSetting = async (key, val) => {
@@ -35,6 +35,8 @@ export default async function handler(req, res) {
       await updateSetting('storeName', storeName);
       await updateSetting('contactEmail', contactEmail);
       await updateSetting('announcementBanner', announcementBanner);
+      await updateSetting('deliveryCharge', deliveryCharge);
+      await updateSetting('freeDeliveryThreshold', freeDeliveryThreshold);
       
       return res.status(200).json({ success: true });
     } catch (error) {

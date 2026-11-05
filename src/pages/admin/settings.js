@@ -5,7 +5,9 @@ export default function Settings() {
   const [settings, setSettings] = useState({
     storeName: '',
     contactEmail: '',
-    announcementBanner: ''
+    announcementBanner: '',
+    deliveryCharge: '0',
+    freeDeliveryThreshold: '0'
   });
   const [loading, setLoading] = useState(true);
 
@@ -58,6 +60,42 @@ export default function Settings() {
           <label className="block text-sm font-medium text-gray-400 mb-2">Announcement Banner Text</label>
           <textarea name="announcementBanner" value={settings.announcementBanner || ''} onChange={handleChange} rows="2" className="w-full bg-[#1a1a1a] border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-yellow-500 transition-colors"></textarea>
           <p className="text-xs text-gray-500 mt-1">This text appears at the very top of the website. Clear the text to hide the banner.</p>
+        </div>
+
+        <div className="pt-6 border-t border-gray-800">
+          <h2 className="text-lg font-semibold text-white mb-4">Delivery & Shipping Settings</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-2">Standard Delivery Charge (₹)</label>
+              <input 
+                type="number" 
+                min="0"
+                step="1"
+                name="deliveryCharge" 
+                value={settings.deliveryCharge ?? '0'} 
+                onChange={handleChange} 
+                className="w-full bg-[#1a1a1a] border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-yellow-500 transition-colors" 
+                placeholder="e.g. 150"
+              />
+              <p className="text-xs text-gray-500 mt-1">Default flat shipping fee added to orders (0 for free).</p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-400 mb-2">Free Delivery Above Order Value (₹)</label>
+              <input 
+                type="number" 
+                min="0"
+                step="1"
+                name="freeDeliveryThreshold" 
+                value={settings.freeDeliveryThreshold ?? '0'} 
+                onChange={handleChange} 
+                className="w-full bg-[#1a1a1a] border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-yellow-500 transition-colors" 
+                placeholder="e.g. 5000"
+              />
+              <p className="text-xs text-gray-500 mt-1">Orders at or above this subtotal get free shipping. Set to 0 to disable free delivery threshold.</p>
+            </div>
+          </div>
         </div>
         <div className="pt-4 border-t border-gray-800">
           <button onClick={handleSave} className="bg-yellow-500 text-black hover:bg-yellow-400 font-bold py-3 px-8 rounded transition-colors">
