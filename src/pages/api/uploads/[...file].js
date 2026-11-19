@@ -23,9 +23,10 @@ export default function handler(req, res) {
     return res.status(400).send('File parameter required');
   }
 
-  // Prevent directory traversal attacks
-  const safeFilename = path.basename(Array.isArray(file) ? file.join('/') : file);
-  const filePath = path.join(process.cwd(), 'public', 'uploads', safeFilename);
+  // Support subfolders (e.g. /uploads/products/xyz.webp) while blocking directory traversal
+  const rawPath = Array.isArray(file) ? file.join('/') : file;
+  const normalized = path.normalize(rawPath).replace(/^(\.\.[\/\\])+/, '');
+  const filePath = path.join(process.cwd(), 'public', 'uploads', normalized);
 
   if (!fs.existsSync(filePath)) {
     return res.status(404).send('File not found');
