@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAppSelector, useAppDispatch } from '@/redux/hooks';
 import { clearCart } from '@/redux/cart/cartSlice';
 import { useRouter } from 'next/router';
@@ -6,6 +6,7 @@ import { toast } from 'react-hot-toast';
 import { useSession } from 'next-auth/react';
 import Script from 'next/script';
 import Link from 'next/link';
+import ReCAPTCHA from 'react-google-recaptcha';
 
 export default function Checkout() {
   const { items } = useAppSelector((state) => state.product);
@@ -14,6 +15,8 @@ export default function Checkout() {
   const { data: session, status } = useSession();
   
   const [loading, setLoading] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState(null);
+  const recaptchaRef = useRef(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -166,12 +169,17 @@ export default function Checkout() {
       body: JSON.stringify(addressToSave)
     }).catch(console.error);
 
+    if (!captchaToken) {
+      toast.error('Please complete the reCAPTCHA verification');
+      return;
+    }
+
     try {
       // 1. Create Order on Backend
       const res = await fetch('/api/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: finalTotal, user: formData, items })
+        body: JSON.stringify({ amount: finalTotal, user: formData, items, captchaToken })
       });
       const data = await res.json();
       
@@ -367,10 +375,20 @@ export default function Checkout() {
                   </label>
                 </div>
 
+                {/* Google reCAPTCHA */}
+                <div className="flex justify-center my-3 overflow-hidden rounded-lg">
+                  <ReCAPTCHA
+                    ref={recaptchaRef}
+                    sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "6LceUxEuAAAAAOkZVmEvWnoiiZ9naRDOIlfWc_HP"}
+                    onChange={(token) => setCaptchaToken(token)}
+                    theme="dark"
+                  />
+                </div>
+
                 <div className="pt-2">
                   <button 
                     type="submit" 
-                    disabled={loading || items.length === 0 || !consent}
+                    disabled={loading || items.length === 0 || !consent || !captchaToken}
                     className="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-black py-4 px-6 rounded-xl transition-all uppercase tracking-wider text-sm disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-yellow-500/20"
                   >
                     {loading ? 'Processing...' : `Pay ₹${finalTotal.toLocaleString()}`}

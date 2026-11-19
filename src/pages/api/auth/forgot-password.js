@@ -1,6 +1,7 @@
 import pool from '@/utils/db';
 import crypto from 'crypto';
 import { sendPasswordResetEmail } from '@/utils/mailer';
+import { verifyCaptcha } from '@/utils/verifyCaptcha';
 
 // In-memory rate limiter to prevent email bombing
 const rateLimits = new Map();
@@ -30,7 +31,14 @@ export default async function handler(req, res) {
     return res.status(429).json({ error: 'Too many requests. Please try again later.' });
   }
 
-  const { email } = req.body;
+  const { email, captchaToken } = req.body;
+
+  if (captchaToken) {
+    const captchaResult = await verifyCaptcha(captchaToken);
+    if (!captchaResult.success) {
+      return res.status(400).json({ error: 'CAPTCHA verification failed. Please try again.' });
+    }
+  }
 
   if (!email || typeof email !== 'string') {
     return res.status(400).json({ error: 'Valid email is required' });

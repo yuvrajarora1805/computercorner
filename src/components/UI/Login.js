@@ -3,9 +3,10 @@ import { BsGithub } from "react-icons/bs";
 import { BiShow, BiHide } from "react-icons/bi";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { toast } from "react-hot-toast";
 import Link from "next/link";
+import ReCAPTCHA from "react-google-recaptcha";
 
 const LoginPage = () => {
   const router = useRouter();
@@ -18,9 +19,17 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [consent, setConsent] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState(null);
+  const recaptchaRef = useRef(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!captchaToken) {
+      toast.error('Please verify you are human with reCAPTCHA');
+      return;
+    }
+
     setLoading(true);
 
     if (isLogin) {
@@ -33,6 +42,8 @@ const LoginPage = () => {
       
       if (result?.error) {
         toast.error('Invalid credentials');
+        recaptchaRef.current?.reset();
+        setCaptchaToken(null);
       } else {
         toast.success('Logged in successfully!');
         router.push(callbackUrl);
@@ -43,7 +54,7 @@ const LoginPage = () => {
         const res = await fetch('/api/auth/signup', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: name, email, password })
+          body: JSON.stringify({ username: name, email, password, captchaToken })
         });
         
         const data = await res.json();
@@ -59,9 +70,13 @@ const LoginPage = () => {
           router.push(callbackUrl);
         } else {
           toast.error(data.error || 'Failed to sign up');
+          recaptchaRef.current?.reset();
+          setCaptchaToken(null);
         }
       } catch (err) {
         toast.error('An error occurred during sign up');
+        recaptchaRef.current?.reset();
+        setCaptchaToken(null);
       }
     }
     
@@ -151,10 +166,20 @@ const LoginPage = () => {
           </div>
         )}
 
+        {/* Google reCAPTCHA v2 */}
+        <div className="flex justify-center my-3 overflow-hidden rounded-lg">
+          <ReCAPTCHA
+            ref={recaptchaRef}
+            sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "6LceUxEuAAAAAOkZVmEvWnoiiZ9naRDOIlfWc_HP"}
+            onChange={(token) => setCaptchaToken(token)}
+            theme="dark"
+          />
+        </div>
+
         <button
           type="submit"
-          disabled={loading || (!isLogin && !consent)}
-          className="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-3 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-4"
+          disabled={loading || !captchaToken || (!isLogin && !consent)}
+          className="w-full bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-3 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-2"
         >
           {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Sign Up')}
         </button>

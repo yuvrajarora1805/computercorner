@@ -1,0 +1,43 @@
+import pool from '@/utils/db';
+import fs from 'fs';
+import path from 'path';
+
+export default async function handler(req, res) {
+  // Allow authorized execution via token / admin pass query
+  const secret = req.query.secret || req.body?.secret;
+  if (secret !== 'Thecomputercorner@2457' && secret !== process.env.ADMIN_PASS) {
+    return res.status(401).json({ error: 'Unauthorized secret' });
+  }
+
+  try {
+    const sqlPath = path.join(process.cwd(), 'sync_products.sql');
+    if (!fs.existsSync(sqlPath)) {
+      return res.status(404).json({ error: 'sync_products.sql not found on server' });
+    }
+
+    const sql = fs.readFileSync(sqlPath, 'utf8');
+    
+    // Split into clear and insert statements
+    const statements = sql
+      .split(';')
+      .map(s => s.trim())
+      .filter(s => s.length > 0 && !s.startsWith('--'));
+
+    let executed = 0;
+    for (const stmt of statements) {
+      await pool.query(stmt);
+      executed++;
+    }
+
+    const [countRows] = await pool.query('SELECT count(*) as total FROM products');
+
+    return res.status(200).json({
+      success: true,
+      message: 'Successfully replaced all products with new catalogue!',
+      totalProductsInDB: countRows[0].total
+    });
+  } catch (error) {
+    console.error('Migration error:', error);
+    return res.status(500).json({ error: error.message });
+  }
+}

@@ -1,18 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Link from 'next/link';
 import { toast } from 'react-hot-toast';
 import { BiMailSend } from 'react-icons/bi';
 import Head from 'next/head';
+import ReCAPTCHA from 'react-google-recaptcha';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState(null);
+  const recaptchaRef = useRef(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email) {
       toast.error('Please enter your email address');
+      return;
+    }
+    if (!captchaToken) {
+      toast.error('Please complete the reCAPTCHA verification');
       return;
     }
 
@@ -21,7 +28,7 @@ export default function ForgotPassword() {
       const res = await fetch('/api/auth/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
+        body: JSON.stringify({ email, captchaToken })
       });
       
       const data = await res.json();
@@ -31,9 +38,13 @@ export default function ForgotPassword() {
         toast.success('Reset request sent!');
       } else {
         toast.error(data.error || 'Something went wrong');
+        recaptchaRef.current?.reset();
+        setCaptchaToken(null);
       }
     } catch (error) {
       toast.error('Failed to connect to the server');
+      recaptchaRef.current?.reset();
+      setCaptchaToken(null);
     } finally {
       setLoading(false);
     }
@@ -92,12 +103,22 @@ export default function ForgotPassword() {
                     placeholder="you@example.com"
                   />
                 </div>
+
+                {/* Google reCAPTCHA */}
+                <div className="flex justify-center my-3 overflow-hidden rounded-lg">
+                  <ReCAPTCHA
+                    ref={recaptchaRef}
+                    sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "6LceUxEuAAAAAOkZVmEvWnoiiZ9naRDOIlfWc_HP"}
+                    onChange={(token) => setCaptchaToken(token)}
+                    theme="dark"
+                  />
+                </div>
               </div>
 
               <div>
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={loading || !captchaToken}
                   className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-lg text-black bg-yellow-500 hover:bg-yellow-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors uppercase tracking-widest disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_15px_rgba(234,179,8,0.3)]"
                 >
                   {loading ? 'Sending...' : 'Send Reset Link'}

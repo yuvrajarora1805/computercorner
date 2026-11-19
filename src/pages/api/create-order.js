@@ -2,6 +2,7 @@ import pool from '@/utils/db';
 import Razorpay from 'razorpay';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
+import { verifyCaptcha } from "@/utils/verifyCaptcha";
 
 // Simple in-memory rate limiter for order creation
 const orderAttempts = new Map();
@@ -33,7 +34,14 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: "Unauthorized. Please log in to create an order." });
   }
 
-  const { amount, user, items } = req.body;
+  const { amount, user, items, captchaToken } = req.body;
+
+  if (captchaToken) {
+    const captchaResult = await verifyCaptcha(captchaToken);
+    if (!captchaResult.success) {
+      return res.status(400).json({ error: 'CAPTCHA verification failed. Please refresh and try again.' });
+    }
+  }
 
   if (amount === undefined || amount === null || !user || !items || items.length === 0) {
     return res.status(400).json({ error: 'Missing required fields' });

@@ -1,6 +1,7 @@
 import pool from '@/utils/db';
 import crypto from 'crypto';
 import { sendWelcomeEmail } from '@/utils/mailer';
+import { verifyCaptcha } from '@/utils/verifyCaptcha';
 
 // Basic utility to hash passwords
 export function hashPassword(password) {
@@ -34,7 +35,15 @@ export default async function handler(req, res) {
     return res.status(429).json({ error: 'Too many requests. Please try again later.' });
   }
 
-  const { username, email, password } = req.body;
+  const { username, email, password, captchaToken } = req.body;
+
+  // Validate Google reCAPTCHA
+  if (captchaToken) {
+    const captchaResult = await verifyCaptcha(captchaToken);
+    if (!captchaResult.success) {
+      return res.status(400).json({ error: 'CAPTCHA verification failed. Please try again.' });
+    }
+  }
 
   if (!username || !email || !password) {
     return res.status(400).json({ error: 'Please provide username, email, and password.' });
