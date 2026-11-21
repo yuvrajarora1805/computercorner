@@ -15,7 +15,7 @@ const CpuProssesorPage = () => {
         <h2 className="text-2xl font-bold border-b border-gray-800 uppercase my-4 pb-4">
           {router.query.categoryId}
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 my-10">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6 my-6 sm:my-10">
           {spacificPageData?.map((spacific) => (
             <Card key={spacific._id} product={spacific} />
           ))}

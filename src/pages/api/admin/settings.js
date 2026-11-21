@@ -10,6 +10,12 @@ export default async function handler(req, res) {
 
   if (req.method === 'GET') {
     try {
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS settings (
+          setting_key VARCHAR(50) PRIMARY KEY,
+          setting_value TEXT
+        )
+      `);
       const [rows] = await pool.query('SELECT setting_key, setting_value FROM settings');
       const settings = {};
       rows.forEach(row => {
@@ -22,6 +28,12 @@ export default async function handler(req, res) {
   } else if (req.method === 'POST') {
     const { storeName, contactEmail, announcementBanner, deliveryCharge, freeDeliveryThreshold } = req.body;
     try {
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS settings (
+          setting_key VARCHAR(50) PRIMARY KEY,
+          setting_value TEXT
+        )
+      `);
       // Upsert logic for safety
       const updateSetting = async (key, val) => {
         if (val !== undefined) {

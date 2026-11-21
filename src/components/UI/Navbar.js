@@ -15,13 +15,13 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const searchRef = useRef(null);
-  const [bannerText, setBannerText] = useState("PC prices will rise in JULY 2026 due to AI component scarcity. Order your PC now");
+  const [bannerText, setBannerText] = useState("");
 
   useEffect(() => {
     fetch('/api/settings')
       .then(res => res.json())
       .then(data => {
-        if (data.announcementBanner !== undefined) {
+        if (data && data.announcementBanner !== undefined) {
           setBannerText(data.announcementBanner);
         }
       })

@@ -1,3 +1,4 @@
+import Head from "next/head";
 import Footer from "@/components/UI/Footer";
 import Navbar from "@/components/UI/Navbar";
 import { store } from "@/redux/store";
@@ -18,6 +19,12 @@ export default function App({ Component, pageProps }) {
   return (
     <Provider store={store}>
       <SessionProvider session={pageProps.session}>
+        <Head>
+          <title>The Computer Corner | Custom Gaming PC & Hardware</title>
+          <link rel="icon" href="/favicon.ico" />
+          <link rel="apple-touch-icon" href="/logo.png" />
+          <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+        </Head>
         {!isAdminRoute && <Navbar />}
         <div>
           {isNormalAdminRoute ? (

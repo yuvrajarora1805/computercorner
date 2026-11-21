@@ -100,7 +100,7 @@ const Card = ({ product, featured = false }) => {
       {/* ── 2. Product Image with 3D Tilt & Lift ───────── */}
       <Link href={`/product/${product?._id}`}>
         <div 
-          className="p-3 sm:p-4"
+          className="p-2.5 sm:p-4"
           onMouseMove={handleImageMouseMove}
           onMouseLeave={handleImageMouseLeave}
           style={{ perspective: 700 }}
@@ -112,7 +112,7 @@ const Card = ({ product, featured = false }) => {
                 : 'rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)',
               transition: imgTilt.active ? 'transform 0.08s ease-out' : 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
             }}
-            className="relative h-48 w-full bg-[#0A0A0A] rounded-xl flex items-center justify-center p-4 overflow-hidden cursor-pointer border-2 border-black/80 group-hover:border-[#FDC800] transition-colors duration-300"
+            className="relative h-44 sm:h-48 w-full bg-[#0A0A0A] rounded-xl flex items-center justify-center p-3 sm:p-4 overflow-hidden cursor-pointer border-2 border-black/80 group-hover:border-[#FDC800] transition-colors duration-300"
           >
             {/* Holographic Sheen Sweep on Hover */}
             <div className="holo-sweep w-full h-full absolute inset-0 pointer-events-none z-10"></div>
@@ -134,7 +134,7 @@ const Card = ({ product, featured = false }) => {
               <img
                 src={mainImage}
                 alt={product.name}
-                className="w-auto h-full object-contain group-hover:scale-105 transition-transform duration-500 relative z-10"
+                className="max-h-full max-w-full object-contain rounded-md group-hover:scale-105 transition-transform duration-500 relative z-10"
                 onError={(e) => {
                   e.target.onerror = null;
                   e.target.src = "/img/cpu.png";
@@ -150,21 +150,21 @@ const Card = ({ product, featured = false }) => {
             )}
             
             {/* Category Badge */}
-            <div className="absolute top-2 left-2 z-10 bg-black/80 backdrop-blur-sm text-white/90 text-[9px] font-heading font-black uppercase tracking-[0.15em] px-2.5 py-1 rounded-full border border-[#FDC800]/40">
+            <div className="absolute top-2 left-2 z-10 bg-black/85 backdrop-blur-sm text-white/90 text-[9px] font-heading font-black uppercase tracking-[0.15em] px-2.5 py-1 rounded-full border border-[#FDC800]/40 shadow-sm">
               {product.category}
             </div>
 
             {/* Hover glow */}
             <div className="absolute inset-0 bg-gradient-to-t from-brand-electric/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </div>
-          <div className="text-[8px] text-brand-white/20 text-center mt-2 font-body italic">
+          <div className="text-[8px] text-brand-white/20 text-center mt-1.5 font-body italic">
             *Image is for reference purpose. Actual product may vary.
           </div>
         </div>
       </Link>
 
       {/* ── Card Content (Remains stable & readable) ───── */}
-      <div className="px-5 pb-5 flex flex-col flex-1">
+      <div className="px-3.5 sm:px-5 pb-4 sm:pb-5 flex flex-col flex-1">
         
         {/* Rating & Status */}
         <div className="flex items-center justify-between mb-2">
@@ -183,45 +183,45 @@ const Card = ({ product, featured = false }) => {
 
         {/* Title */}
         <Link href={`/product/${product?._id}`} className="block flex-1">
-          <h3 className="text-brand-white font-sub font-bold text-sm leading-tight mb-4 group-hover:text-[#FDC800] transition-colors duration-200 line-clamp-2 tracking-wide">
+          <h3 className="text-brand-white font-sub font-bold text-xs sm:text-sm leading-snug sm:leading-tight mb-3 sm:mb-4 group-hover:text-[#FDC800] transition-colors duration-200 line-clamp-2 tracking-wide">
             {product.name}
           </h3>
         </Link>
 
         {/* Price & Actions */}
-        <div className="flex flex-col gap-3 mt-auto">
+        <div className="flex flex-col gap-2.5 sm:gap-3 mt-auto">
           {/* Price */}
           <div className="flex items-center justify-between">
-            <div className="inline-flex items-center px-3 py-1 rounded-lg bg-black text-[#FDC800] border-2 border-[#FDC800] font-mono font-black text-sm tracking-wide shadow-brutal-sm">
+            <div className="inline-flex items-center px-2.5 py-1 rounded-lg bg-black text-[#FDC800] border-2 border-[#FDC800] font-mono font-black text-xs sm:text-sm tracking-wide shadow-brutal-sm">
               ₹ {product.price?.toLocaleString()}
             </div>
             {product.rating && (
-              <span className="text-[10px] text-brand-white/50 font-mono">
+              <span className="text-[9px] sm:text-[10px] text-brand-white/50 font-mono">
                 {product.status || 'Ready to Ship'}
               </span>
             )}
           </div>
           
           {/* Cart Actions */}
-          <div className="flex gap-2 h-[42px]">
+          <div className="flex gap-2 h-9 sm:h-[42px]">
             {cartQuantity > 0 ? (
               <div className="flex-1 flex items-center justify-between bg-black rounded-xl overflow-hidden h-full border-2 border-[#FDC800] shadow-brutal-sm">
                 <button 
                   onClick={(e) => handleUpdateQuantity(e, cartQuantity - 1)}
-                  className="px-3 text-[#FDC800] hover:text-black hover:bg-[#FDC800] h-full font-bold transition-colors text-lg flex items-center"
+                  className="px-2.5 sm:px-3 text-[#FDC800] hover:text-black hover:bg-[#FDC800] h-full font-bold transition-colors text-base sm:text-lg flex items-center"
                 ><RiSubtractLine /></button>
-                <span className="font-mono font-black text-white text-xs tracking-wide">{cartQuantity} in Cart</span>
+                <span className="font-mono font-black text-white text-[11px] sm:text-xs tracking-wide">{cartQuantity} in Cart</span>
                 <button 
                   onClick={(e) => handleUpdateQuantity(e, cartQuantity + 1)}
-                  className="px-3 text-[#FDC800] hover:text-black hover:bg-[#FDC800] h-full font-bold transition-colors text-lg flex items-center"
+                  className="px-2.5 sm:px-3 text-[#FDC800] hover:text-black hover:bg-[#FDC800] h-full font-bold transition-colors text-base sm:text-lg flex items-center"
                 ><RiAddLine /></button>
               </div>
             ) : (
               <button 
                 onClick={handleAddToCart}
-                className="flex-1 brutal-btn brutal-btn-gold text-xs h-full tracking-wider active:scale-95 transition-transform"
+                className="flex-1 brutal-btn brutal-btn-gold text-[11px] sm:text-xs h-full tracking-wider active:scale-95 transition-transform flex items-center justify-center gap-1.5"
               >
-                <RiShoppingCartLine className="text-base" />
+                <RiShoppingCartLine className="text-sm sm:text-base" />
                 Add to Cart
               </button>
             )}
