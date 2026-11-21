@@ -2,12 +2,24 @@ import Head from "next/head";
 import Footer from "@/components/UI/Footer";
 import Navbar from "@/components/UI/Navbar";
 import { store } from "@/redux/store";
+import { hydrateCart } from "@/redux/cart/cartSlice";
+import { hydrateFavorites } from "@/redux/favorites/favoriteSlice";
 import "@/styles/globals.css";
 import { SessionProvider } from "next-auth/react";
 import { Provider } from "react-redux";
 import { Toaster } from "react-hot-toast";
 import { useRouter } from "next/router";
+import { useEffect } from "react";
 import AdminLayout from "@/components/Layouts/AdminLayout";
+
+function StoreHydrator({ children }) {
+  useEffect(() => {
+    store.dispatch(hydrateCart());
+    store.dispatch(hydrateFavorites());
+  }, []);
+
+  return children;
+}
 
 export default function App({ Component, pageProps }) {
   const router = useRouter();
@@ -19,7 +31,8 @@ export default function App({ Component, pageProps }) {
   return (
     <Provider store={store}>
       <SessionProvider session={pageProps.session}>
-        <Head>
+        <StoreHydrator>
+          <Head>
           <title>The Computer Corner - Best Computer Shop in Bathinda | Custom Gaming PC & Hardware</title>
           <meta name="description" content="The Computer Corner is Bathinda's best computer shop and custom PC build store. Buy high-performance gaming rigs, processors, graphics cards, motherboards, RAM, and genuine PC parts at best prices." />
           <meta name="keywords" content="Best computer shop in Bathinda, custom PC builder Bathinda, gaming PC Bathinda, computer accessories Bathinda, The Computer Corner, graphics cards, Intel AMD processor, PC components Punjab" />
@@ -98,6 +111,7 @@ export default function App({ Component, pageProps }) {
           <Toaster />
         </div>
         {!isAdminRoute && <Footer />}
+        </StoreHydrator>
       </SessionProvider>
     </Provider>
   );
