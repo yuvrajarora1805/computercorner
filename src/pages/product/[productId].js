@@ -438,11 +438,70 @@ const ProductDetailPage = ({ product, relatedProducts = [] }) => {
               {activeTab === "overview" && (
                 <div className="max-w-4xl">
                   <h3 className="text-base font-bold text-white mb-4 flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-[#FDC800]"></span> Product Overview
+                    <span className="w-2 h-2 rounded-full bg-[#FDC800]"></span> Product Overview & Detailed Specs
                   </h3>
-                  <div className="text-neutral-300 leading-relaxed text-sm md:text-base whitespace-pre-wrap space-y-4">
-                    {description || "No extended overview provided for this product yet."}
-                  </div>
+
+                  {(() => {
+                    if (!description) {
+                      return <p className="text-neutral-400 text-sm">No extended overview provided for this product yet.</p>;
+                    }
+
+                    // Handle scraped raw table specs with tab characters (\t)
+                    if (description.includes('\t')) {
+                      const tokens = description.split('\t').map(t => t.trim()).filter(Boolean);
+                      if (tokens.length >= 3 && tokens.some(t => ['brand', 'series', 'model', 'specifications:-', 'specifications'].includes(t.toLowerCase()))) {
+                        let header = '';
+                        let startIndex = 0;
+                        if (tokens[0].endsWith(':-') || tokens[0].toLowerCase() === 'specifications' || tokens[0].toLowerCase() === 'features:') {
+                          header = tokens[0].replace(/[:-]+$/, '');
+                          startIndex = 1;
+                        }
+
+                        const pairs = [];
+                        for (let i = startIndex; i < tokens.length; i += 2) {
+                          const k = tokens[i];
+                          const v = tokens[i + 1] || '';
+                          if (k) pairs.push({ key: k, value: v });
+                        }
+
+                        if (pairs.length > 0) {
+                          return (
+                            <div className="space-y-4">
+                              {header && (
+                                <h4 className="text-sm font-mono font-bold text-[#FDC800] uppercase tracking-wider">{header}</h4>
+                              )}
+                              <div className="overflow-hidden rounded-xl border border-neutral-800">
+                                <table className="w-full text-left text-xs md:text-sm">
+                                  <tbody>
+                                    {pairs.map((p, idx) => (
+                                      <tr
+                                        key={idx}
+                                        className={`border-b border-neutral-800/70 last:border-0 ${
+                                          idx % 2 === 0 ? "bg-[#171717]" : "bg-[#141414]"
+                                        }`}
+                                      >
+                                        <td className="py-3 px-4 font-mono text-neutral-400 font-semibold w-1/3">
+                                          {p.key}
+                                        </td>
+                                        <td className="py-3 px-4 text-white font-medium">{p.value}</td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                          );
+                        }
+                      }
+                    }
+
+                    // Standard prose description
+                    return (
+                      <div className="text-neutral-300 leading-relaxed text-sm md:text-base whitespace-pre-wrap space-y-4">
+                        {description}
+                      </div>
+                    );
+                  })()}
                 </div>
               )}
 
